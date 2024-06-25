@@ -3,6 +3,7 @@ package chess;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -12,7 +13,25 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 
     /**
@@ -31,14 +50,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -49,6 +68,57 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        Collection<ChessMove> possibleMoves =  new ArrayList<>();
+//        This swich case segment finds the respective piece type and should find the correct moves.
+        switch(type) {
+            case KING:
+                possibleMoves = kingFindMoves(board, myPosition);
+                break;
+            case QUEEN:
+                possibleMoves = queenFindMoves(board, myPosition);
+                break;
+            case BISHOP:
+                possibleMoves = bishopFindMoves(board, myPosition);
+                break;
+            case KNIGHT:
+                possibleMoves = knightFindMoves(board, myPosition);
+                break;
+            case ROOK:
+                possibleMoves = rookFindMoves(board, myPosition);
+                break;
+            case PAWN:
+                possibleMoves = pawnFindMoves(board, myPosition);
+                break;
+            default:
+                throw new RuntimeException("Didn't find a compatible type for this piece");
+        }
+
+        return possibleMoves;
     }
+    private Collection<ChessMove> kingFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+    private Collection<ChessMove> queenFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+    private Collection<ChessMove> bishopFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+    private Collection<ChessMove> knightFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+    private Collection<ChessMove> rookFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+    private Collection<ChessMove> pawnFindMoves(ChessBoard board, ChessPosition myPosition) {
+        throw new RuntimeException("Not implemented");
+    }
+
+
+
+
+
+
+
+
 }
