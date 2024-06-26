@@ -68,32 +68,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> possibleMoves =  new ArrayList<>();
-//        This swich case segment finds the respective piece type and should find the correct moves.
-        switch(type) {
-            case KING:
-                possibleMoves = kingFindMoves(board, myPosition);
-                break;
-            case QUEEN:
-                possibleMoves = queenFindMoves(board, myPosition);
-                break;
-            case BISHOP:
-                possibleMoves = bishopFindMoves(board, myPosition);
-                break;
-            case KNIGHT:
-                possibleMoves = knightFindMoves(board, myPosition);
-                break;
-            case ROOK:
-                possibleMoves = rookFindMoves(board, myPosition);
-                break;
-            case PAWN:
-                possibleMoves = pawnFindMoves(board, myPosition);
-                break;
-            default:
-                throw new RuntimeException("Didn't find a compatible type for this piece");
-        }
-
-        return possibleMoves;
+        //  This switch case segment finds the respective piece type and returns the result of the proper function, in the form of an ArrayList
+        return switch (type) {
+            case KING -> kingFindMoves(board, myPosition);
+            case QUEEN -> queenFindMoves(board, myPosition);
+            case BISHOP -> bishopFindMoves(board, myPosition);
+            case KNIGHT -> knightFindMoves(board, myPosition);
+            case ROOK -> rookFindMoves(board, myPosition);
+            case PAWN -> pawnFindMoves(board, myPosition);
+            default -> throw new RuntimeException("Didn't find a compatible type for this piece");
+        };
     }
     private Collection<ChessMove> kingFindMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
