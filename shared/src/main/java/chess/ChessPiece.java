@@ -92,23 +92,62 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
     private Collection<ChessMove> rookFindMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>();
+        // move right
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        while (col <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
+            if (nextPosition != myPosition && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+                break;
+            else if (board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+                break;
+            }
+            else {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+            }
+            col++;
+        }
+        // move left
+        col = myPosition.getColumn();
+        while (col >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
+            if (nextPosition != myPosition && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+                break;
+            else if (board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+                break;
+            }
+            else {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+            }
+            col--;
+        }
+        // move up
+        row = myPosition.getRow();
+        while (row <= 8) {
+            row++;
+        }
+        // move down
+        row = myPosition.getRow();
+        while (row >= 1) {
+            row--;
+        }
+//        throw new RuntimeException("Not implemented");
+        return possibleMoves;
     }
     private Collection<ChessMove> pawnFindMoves(ChessBoard board, ChessPosition myPosition) {
 //        OKAY so we're making a pretty big assumption that the player is always oriented facing the top,
 //        so we're going to assume that if the pawn is on row 2, that it is in the starting position and can thus
 //        feasibly move 2 spots forward, rather than just one.
         throw new RuntimeException("Not implemented");
-//        ArrayList<>
-        // Checks if
-//        if ()
+
     }
-
-
-
-
-
-
-
-
 }
