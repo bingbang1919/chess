@@ -95,7 +95,13 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
     private Collection<ChessMove> pawnFindMoves(ChessBoard board, ChessPosition myPosition) {
+//        OKAY so we're making a pretty big assumption that the player is always oriented facing the top,
+//        so we're going to assume that if the pawn is on row 2, that it is in the starting position and can thus
+//        feasibly move 2 spots forward, rather than just one.
         throw new RuntimeException("Not implemented");
+//        ArrayList<>
+        // Checks if
+//        if ()
     }
 
 
