@@ -1,6 +1,5 @@
 package chess;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -83,19 +82,136 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
     private Collection<ChessMove> queenFindMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        // move top right
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        while (col <= 8  && row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col++;
+            row++;
+        }
+        // move top left
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col >= 1 && row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col--;
+            row++;
+        }
+        // move bottom right
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col <= 8 && row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row--;
+            col++;
+        }
+        // move bottom left
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col >= 1 && row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row--;
+            col--;
+        }
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col++;
+        }
+        // move left
+        col = myPosition.getColumn();
+        while (col >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col--;
+        }
+        // move up
+        col = myPosition.getColumn();
+        while (row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row++;
+        }
+        // move down
+        row = myPosition.getRow();
+        while (row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row--;
+        }
+        return possibleMoves;
     }
+
+
     private Collection<ChessMove> bishopFindMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        // move top right
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        while (col <= 8  && row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col++;
+            row++;
+        }
+        // move top left
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col >= 1 && row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            col--;
+            row++;
+        }
+        // move bottom right
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col <= 8 && row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row--;
+            col++;
+        }
+        // move bottom left
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
+        while (col >= 1 && row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+                break;
+            row--;
+            col--;
+        }
+
+//        throw new RuntimeException("Not implemented");
+        return possibleMoves;
     }
     private Collection<ChessMove> knightFindMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
     }
 
     // Returns true if it needs to stop, returns false if it is to continue
-    private boolean rookStopMovingHelper(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves) {
+    private boolean longMoveHelper(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves) {
         // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-
         if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
             return true;
         else if (board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
@@ -116,37 +232,31 @@ public class ChessPiece {
         int col = myPosition.getColumn();
         while (col <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (rookStopMovingHelper(board, myPosition, nextPosition, possibleMoves))
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
                 break;
             col++;
         }
         // move left
-        row = myPosition.getRow();
         col = myPosition.getColumn();
         while (col >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-            if (rookStopMovingHelper(board, myPosition, nextPosition, possibleMoves))
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
                 break;
             col--;
         }
         // move up
-        row = myPosition.getRow();
         col = myPosition.getColumn();
         while (row <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-            if (rookStopMovingHelper(board, myPosition, nextPosition, possibleMoves))
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
                 break;
             row++;
         }
         // move down
         row = myPosition.getRow();
-        col = myPosition.getColumn();
         while (row >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-            if (rookStopMovingHelper(board, myPosition, nextPosition, possibleMoves))
+            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
                 break;
             row--;
         }
