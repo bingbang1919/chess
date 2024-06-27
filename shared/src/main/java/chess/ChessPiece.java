@@ -92,39 +92,42 @@ public class ChessPiece {
         throw new RuntimeException("Not implemented");
     }
     private Collection<ChessMove> rookFindMoves(ChessBoard board, ChessPosition myPosition) {
-        ArrayList<ChessMove> possibleMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         // move right
         int row = myPosition.getRow();
+//        System.out.println(row);
         int col = myPosition.getColumn();
+//        System.out.println(col);
         while (col <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
             // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-            if (nextPosition != myPosition && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+            if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
                 break;
-            else if (board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+            else if (board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
                 ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
                 possibleMoves.add(newMove);
                 break;
             }
-            else {
+            else if (!nextPosition.equals(myPosition)){
                 ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
                 possibleMoves.add(newMove);
             }
             col++;
         }
         // move left
+        row = myPosition.getRow();
         col = myPosition.getColumn();
         while (col >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
             // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
-            if (nextPosition != myPosition && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+            if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
                 break;
-            else if (board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+            else if (board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
                 ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
                 possibleMoves.add(newMove);
                 break;
             }
-            else {
+            else if (!nextPosition.equals(myPosition)){
                 ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
                 possibleMoves.add(newMove);
             }
@@ -132,12 +135,40 @@ public class ChessPiece {
         }
         // move up
         row = myPosition.getRow();
+        col = myPosition.getColumn();
         while (row <= 8) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
+            if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+                break;
+            else if (board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+                break;
+            }
+            else if (!nextPosition.equals(myPosition)){
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+            }
             row++;
         }
         // move down
         row = myPosition.getRow();
+        col = myPosition.getColumn();
         while (row >= 1) {
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
+            if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
+                break;
+            else if (board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+                break;
+            }
+            else if (!nextPosition.equals(myPosition)) {
+                ChessMove newMove = new ChessMove(myPosition, nextPosition, null);
+                possibleMoves.add(newMove);
+            }
             row--;
         }
 //        throw new RuntimeException("Not implemented");
