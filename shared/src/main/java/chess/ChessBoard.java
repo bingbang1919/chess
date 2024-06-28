@@ -39,8 +39,61 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
+//    public void resetBoard() {
+//        squares = new ChessPiece[8][8];
+//        int white = 2;
+//        int black = 7;
+//        for (int i=1; i<=8; i++) {
+//            addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+//            addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+//        }
+//        for (int i=0; i<2; i++) {
+//            int row;
+//            ChessGame.TeamColor teamColor;
+//            if (i==0) {
+//                teamColor = ChessGame.TeamColor.WHITE;
+//                row = 1;
+//            }
+//            else {
+//                teamColor = ChessGame.TeamColor.BLACK;
+//                row = 8;
+//            }
+//            addPiece(new ChessPosition(row, 1), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+//            addPiece(new ChessPosition(row, 2), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+//            addPiece(new ChessPosition(row, 3), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+//            addPiece(new ChessPosition(row, 4), new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN));
+//            addPiece(new ChessPosition(row, 5), new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+//            addPiece(new ChessPosition(row, 6), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+//            addPiece(new ChessPosition(row, 7), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+//            addPiece(new ChessPosition(row, 8), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+//        }
+//    }
+
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        for (int i=0; i<8; i++) {
+            squares[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            squares[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+        }
+        for (int i=0; i<2; i++) {
+            int row;
+            ChessGame.TeamColor teamColor;
+            if (i==0) {
+                teamColor = ChessGame.TeamColor.WHITE;
+                row = 1;
+            }
+            else {
+                teamColor = ChessGame.TeamColor.BLACK;
+                row = 6;
+            }
+            squares[row][0] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+            squares[row][1] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+            squares[row][2] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+            squares[row][3] = new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN);
+            squares[row][4] = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
+            squares[row][5] = new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP);
+            squares[row][6] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
+            squares[row][7] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
+        }
     }
 
     @Override

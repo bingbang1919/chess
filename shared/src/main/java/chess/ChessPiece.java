@@ -20,6 +20,31 @@ public class ChessPiece {
         this.type = type;
     }
 
+//    @Override
+//    public Character toString() {
+//        switch (type){
+//            case KING -> {
+//                return 'K';
+//            }
+//            case QUEEN -> {
+//                return 'Q';
+//            }
+//            case BISHOP -> {
+//                return 'B';
+//            }
+//            case KNIGHT -> {
+//                return 'H';
+//            }
+//            case ROOK -> {
+//                return 'R';
+//            }
+//            case PAWN -> {
+//                return 'P';
+//            }
+//        }
+//        return null;
+//    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
