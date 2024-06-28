@@ -79,7 +79,28 @@ public class ChessPiece {
         };
     }
     private Collection<ChessMove> kingFindMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        int col = myPosition.getColumn();
+        int row = myPosition.getRow();
+        int[][] coordinateArray = {
+                {row-1, col-1},
+                {row, col-1},
+                {row+1, col-1},
+                {row-1, col},
+                {row+1, col},
+                {row-1, col+1},
+                {row, col+1},
+                {row+1, col+1}
+        };
+        for (int[] coordinate : coordinateArray) {
+            row = coordinate[0];
+            col = coordinate[1];
+            if (row >8 || row <= 0 || col > 8 || col <= 0)
+                continue;
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            longMoveHelper(board, myPosition, nextPosition, possibleMoves);
+        }
+        return possibleMoves;
     }
     private Collection<ChessMove> queenFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -206,7 +227,28 @@ public class ChessPiece {
         return possibleMoves;
     }
     private Collection<ChessMove> knightFindMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        int col = myPosition.getColumn();
+        int row = myPosition.getRow();
+        int[][] coordinateArray = {
+                {row-1, col-2},
+                {row+1, col-2},
+                {row+2, col-1},
+                {row+2, col+1},
+                {row+1, col+2},
+                {row-1, col+2},
+                {row-2, col+1},
+                {row-2, col-1}
+        };
+        for (int[] coordinate : coordinateArray) {
+            row = coordinate[0];
+            col = coordinate[1];
+            if (row >8 || row <= 0 || col > 8 || col <= 0)
+                continue;
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            longMoveHelper(board, myPosition, nextPosition, possibleMoves);
+        }
+        return possibleMoves;
     }
 
     // Returns true if it needs to stop, returns false if it is to continue
