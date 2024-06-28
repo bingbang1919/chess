@@ -70,20 +70,21 @@ public class ChessBoard {
 //    }
 
     public void resetBoard() {
+        squares = new ChessPiece[8][8];
         for (int i=0; i<8; i++) {
-            squares[0][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-            squares[7][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            squares[1][i] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+            squares[6][i] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
         for (int i=0; i<2; i++) {
             int row;
             ChessGame.TeamColor teamColor;
             if (i==0) {
                 teamColor = ChessGame.TeamColor.WHITE;
-                row = 1;
+                row = 0;
             }
             else {
                 teamColor = ChessGame.TeamColor.BLACK;
-                row = 6;
+                row = 7;
             }
             squares[row][0] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
             squares[row][1] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
@@ -94,6 +95,19 @@ public class ChessBoard {
             squares[row][6] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
             squares[row][7] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
         }
+//        toString();
+    }
+
+    public void compareSquares(ChessBoard otherBoard) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                ChessPiece piece = this.squares[i][j];
+                ChessPiece otherPiece = otherBoard.squares[i][j];
+                if (piece != null && !piece.equals(otherPiece)) {
+                    System.out.printf("The Coordinates failed at ", i, j);
+                }
+            }
+        }
     }
 
     @Override
@@ -101,11 +115,18 @@ public class ChessBoard {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Arrays.equals(squares, that.squares);
+        return Arrays.deepEquals(squares, that.squares);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(squares);
+        return Arrays.deepHashCode(squares);
     }
+
+//    @Override
+//    public String toString() {
+//        return "ChessBoard{" +
+//                "squares=" + Arrays.toString(squares) +
+//                '}';
+//    }
 }

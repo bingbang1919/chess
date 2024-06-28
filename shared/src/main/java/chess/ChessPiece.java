@@ -20,30 +20,29 @@ public class ChessPiece {
         this.type = type;
     }
 
-//    @Override
-//    public Character toString() {
-//        switch (type){
-//            case KING -> {
-//                return 'K';
-//            }
-//            case QUEEN -> {
-//                return 'Q';
-//            }
-//            case BISHOP -> {
-//                return 'B';
-//            }
-//            case KNIGHT -> {
-//                return 'H';
-//            }
-//            case ROOK -> {
-//                return 'R';
-//            }
-//            case PAWN -> {
-//                return 'P';
-//            }
-//        }
-//        return null;
-//    }
+    public char getChar() {
+        switch (type){
+            case KING -> {
+                return 'K';
+            }
+            case QUEEN -> {
+                return 'Q';
+            }
+            case BISHOP -> {
+                return 'B';
+            }
+            case KNIGHT -> {
+                return 'H';
+            }
+            case ROOK -> {
+                return 'R';
+            }
+            case PAWN -> {
+                return 'P';
+            }
+        }
+        return '_';
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -83,6 +82,7 @@ public class ChessPiece {
     public PieceType getPieceType() {
         return type;
     }
+
 
     /**
      * Calculates all the positions a chess piece can move to
@@ -203,7 +203,6 @@ public class ChessPiece {
         }
         return possibleMoves;
     }
-
 
     private Collection<ChessMove> bishopFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
@@ -331,6 +330,10 @@ public class ChessPiece {
         return possibleMoves;
     }
 
+    private boolean pawnMoveInBounds(ChessPosition nextPosition) {
+        return nextPosition.getRow() <= 8 && nextPosition.getRow() >= 1 && nextPosition.getColumn() <= 8 && nextPosition.getColumn() >= 1;
+    }
+
     private static void pawnMovementHelper(ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves, Boolean isWhite) {
         if ((nextPosition.getRow() == 8 && isWhite) || (nextPosition.getRow() == 1 && !isWhite)) {
             possibleMoves.add(new ChessMove(myPosition,nextPosition,PieceType.QUEEN));
@@ -349,7 +352,7 @@ public class ChessPiece {
         if (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
             // first we check if the front is clear
             ChessPosition frontPosition = new ChessPosition(row+1, col);
-            if (board.getPiece(frontPosition) == null) {
+            if (pawnMoveInBounds(frontPosition) && board.getPiece(frontPosition) == null) {
                 pawnMovementHelper(myPosition, frontPosition, possibleMoves, true);
                 ChessPosition startJumpPosition = new ChessPosition(row+2, col);
                 if (myPosition.getRow() == 2 && board.getPiece(startJumpPosition) == null) {
@@ -358,17 +361,17 @@ public class ChessPiece {
             }
             ChessPosition topLeft = new ChessPosition(row+1, col-1);
             ChessPosition topRight = new ChessPosition(row+1, col+1);
-            if (board.getPiece(topLeft) != null && board.getPiece(topLeft).getTeamColor() == ChessGame.TeamColor.BLACK) {
+            if (pawnMoveInBounds(topLeft) && board.getPiece(topLeft) != null && board.getPiece(topLeft).getTeamColor() == ChessGame.TeamColor.BLACK) {
                 pawnMovementHelper(myPosition, topLeft, possibleMoves, true);
             }
-            if (board.getPiece(topRight) != null && board.getPiece(topRight).getTeamColor() == ChessGame.TeamColor.BLACK) {
+            if (pawnMoveInBounds(topRight) && board.getPiece(topRight) != null && board.getPiece(topRight).getTeamColor() == ChessGame.TeamColor.BLACK) {
                 pawnMovementHelper(myPosition, topRight, possibleMoves, true);
             }
         }
         else {
             // first we check if the front is clear
             ChessPosition frontPosition = new ChessPosition(row-1, col);
-            if (board.getPiece(frontPosition) == null) {
+            if (pawnMoveInBounds(frontPosition) && board.getPiece(frontPosition) == null) {
                 pawnMovementHelper(myPosition, frontPosition, possibleMoves, false);
                 ChessPosition startJumpPosition = new ChessPosition(row-2, col);
                 if (myPosition.getRow() == 7 && board.getPiece(startJumpPosition) == null) {
@@ -377,10 +380,10 @@ public class ChessPiece {
             }
             ChessPosition bottomLeft = new ChessPosition(row-1, col-1);
             ChessPosition bottomRight = new ChessPosition(row-1, col+1);
-            if (board.getPiece(bottomLeft) != null && board.getPiece(bottomLeft).getTeamColor() == ChessGame.TeamColor.WHITE) {
+            if (pawnMoveInBounds(bottomLeft) && board.getPiece(bottomLeft) != null && board.getPiece(bottomLeft).getTeamColor() == ChessGame.TeamColor.WHITE) {
                 pawnMovementHelper(myPosition, bottomLeft, possibleMoves, false);
             }
-            if (board.getPiece(bottomRight) != null && board.getPiece(bottomRight).getTeamColor() == ChessGame.TeamColor.WHITE) {
+            if (pawnMoveInBounds(bottomRight) && board.getPiece(bottomRight) != null && board.getPiece(bottomRight).getTeamColor() == ChessGame.TeamColor.WHITE) {
                 pawnMovementHelper(myPosition, bottomRight, possibleMoves, false);
             }
         }

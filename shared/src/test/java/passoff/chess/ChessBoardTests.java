@@ -47,6 +47,10 @@ public class ChessBoardTests {
         var actualBoard = new ChessBoard();
         actualBoard.resetBoard();
 
+        // THIS IS FROM ME
+//        actualBoard.compareSquares(expectedBoard);
+        // THIS IS FROM ME ^^^^
+
         Assertions.assertEquals(expectedBoard, actualBoard);
     }
 
