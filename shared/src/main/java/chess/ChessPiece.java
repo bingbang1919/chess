@@ -305,11 +305,62 @@ public class ChessPiece {
 //        throw new RuntimeException("Not implemented");
         return possibleMoves;
     }
-    private Collection<ChessMove> pawnFindMoves(ChessBoard board, ChessPosition myPosition) {
-//        OKAY so we're making a pretty big assumption that the player is always oriented facing the top,
-//        so we're going to assume that if the pawn is on row 2, that it is in the starting position and can thus
-//        feasibly move 2 spots forward, rather than just one.
-        throw new RuntimeException("Not implemented");
 
+    private static void pawnMovementHelper(ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves, Boolean isWhite) {
+        if ((nextPosition.getRow() == 8 && isWhite) || (nextPosition.getRow() == 1 && !isWhite)) {
+            possibleMoves.add(new ChessMove(myPosition,nextPosition,PieceType.QUEEN));
+            possibleMoves.add(new ChessMove(myPosition,nextPosition,PieceType.BISHOP));
+            possibleMoves.add(new ChessMove(myPosition,nextPosition,PieceType.ROOK));
+            possibleMoves.add(new ChessMove(myPosition,nextPosition,PieceType.KNIGHT));
+        }
+        else {
+            possibleMoves.add(new ChessMove(myPosition,nextPosition,null));
+        }
     }
+    private Collection<ChessMove> pawnFindMoves(ChessBoard board, ChessPosition myPosition) {
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        int col = myPosition.getColumn();
+        int row = myPosition.getRow();
+        if (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
+            // first we check if the front is clear
+            ChessPosition frontPosition = new ChessPosition(row+1, col);
+            if (board.getPiece(frontPosition) == null) {
+                pawnMovementHelper(myPosition, frontPosition, possibleMoves, true);
+                ChessPosition startJumpPosition = new ChessPosition(row+2, col);
+                if (myPosition.getRow() == 2 && board.getPiece(startJumpPosition) == null) {
+                    possibleMoves.add(new ChessMove(myPosition, startJumpPosition, null));
+                }
+            }
+            ChessPosition topLeft = new ChessPosition(row+1, col-1);
+            ChessPosition topRight = new ChessPosition(row+1, col+1);
+            if (board.getPiece(topLeft) != null && board.getPiece(topLeft).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                pawnMovementHelper(myPosition, topLeft, possibleMoves, true);
+            }
+            if (board.getPiece(topRight) != null && board.getPiece(topRight).getTeamColor() == ChessGame.TeamColor.BLACK) {
+                pawnMovementHelper(myPosition, topRight, possibleMoves, true);
+            }
+        }
+        else {
+            // first we check if the front is clear
+            ChessPosition frontPosition = new ChessPosition(row-1, col);
+            if (board.getPiece(frontPosition) == null) {
+                pawnMovementHelper(myPosition, frontPosition, possibleMoves, false);
+                ChessPosition startJumpPosition = new ChessPosition(row-2, col);
+                if (myPosition.getRow() == 7 && board.getPiece(startJumpPosition) == null) {
+                    possibleMoves.add(new ChessMove(myPosition, startJumpPosition, null));
+                }
+            }
+            ChessPosition bottomLeft = new ChessPosition(row-1, col-1);
+            ChessPosition bottomRight = new ChessPosition(row-1, col+1);
+            if (board.getPiece(bottomLeft) != null && board.getPiece(bottomLeft).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                pawnMovementHelper(myPosition, bottomLeft, possibleMoves, false);
+            }
+            if (board.getPiece(bottomRight) != null && board.getPiece(bottomRight).getTeamColor() == ChessGame.TeamColor.WHITE) {
+                pawnMovementHelper(myPosition, bottomRight, possibleMoves, false);
+            }
+        }
+        return possibleMoves;
+    }
+
+
 }
