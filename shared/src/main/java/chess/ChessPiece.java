@@ -20,30 +20,6 @@ public class ChessPiece {
         this.type = type;
     }
 
-    public char getChar() {
-        switch (type){
-            case KING -> {
-                return 'K';
-            }
-            case QUEEN -> {
-                return 'Q';
-            }
-            case BISHOP -> {
-                return 'B';
-            }
-            case KNIGHT -> {
-                return 'H';
-            }
-            case ROOK -> {
-                return 'R';
-            }
-            case PAWN -> {
-                return 'P';
-            }
-        }
-        return '_';
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -103,6 +79,19 @@ public class ChessPiece {
             default -> throw new RuntimeException("Didn't find a compatible type for this piece");
         };
     }
+
+    // This function uses an array of coordinates to help figure out movement for both the king and knight
+    private Collection<ChessMove> coordinateMovementHelper(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> possibleMoves, int[][] coordinateArray) {
+        for (int[] coordinate : coordinateArray) {
+            int row = coordinate[0];
+            int col = coordinate[1];
+            if (row >8 || row <= 0 || col > 8 || col <= 0)
+                continue;
+            ChessPosition nextPosition = new ChessPosition(row, col);
+            shouldStopMoving(board, myPosition, nextPosition, possibleMoves);
+        }
+        return possibleMoves;
+    }
     private Collection<ChessMove> kingFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int col = myPosition.getColumn();
@@ -117,101 +106,27 @@ public class ChessPiece {
                 {row, col+1},
                 {row+1, col+1}
         };
-        for (int[] coordinate : coordinateArray) {
-            row = coordinate[0];
-            col = coordinate[1];
-            if (row >8 || row <= 0 || col > 8 || col <= 0)
-                continue;
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            longMoveHelper(board, myPosition, nextPosition, possibleMoves);
-        }
-        return possibleMoves;
+        return coordinateMovementHelper(board, myPosition, possibleMoves, coordinateArray);
     }
     private Collection<ChessMove> queenFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-        // move top right
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        while (col <= 8  && row <= 8) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            col++;
-            row++;
-        }
-        // move top left
-        row = myPosition.getRow();
-        col = myPosition.getColumn();
-        while (col >= 1 && row <= 8) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            col--;
-            row++;
-        }
-        // move bottom right
-        row = myPosition.getRow();
-        col = myPosition.getColumn();
-        while (col <= 8 && row >= 1) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            row--;
-            col++;
-        }
-        // move bottom left
-        row = myPosition.getRow();
-        col = myPosition.getColumn();
-        while (col >= 1 && row >= 1) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            row--;
-            col--;
-        }
-        row = myPosition.getRow();
-        col = myPosition.getColumn();
-        while (col <= 8) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            col++;
-        }
-        // move left
-        col = myPosition.getColumn();
-        while (col >= 1) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            col--;
-        }
-        // move up
-        col = myPosition.getColumn();
-        while (row <= 8) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            row++;
-        }
-        // move down
-        row = myPosition.getRow();
-        while (row >= 1) {
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
-                break;
-            row--;
-        }
+        bishopFindMoves(board, myPosition, possibleMoves);
+        rookFindMoves(board, myPosition, possibleMoves);
         return possibleMoves;
     }
-
+    // This overloaded method is used for the bishop.
     private Collection<ChessMove> bishopFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        return bishopFindMoves(board, myPosition, possibleMoves);
+    }
+    // This method is for the queen.
+    private Collection<ChessMove> bishopFindMoves(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> possibleMoves) {
         // move top right
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         while (col <= 8  && row <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             col++;
             row++;
@@ -221,7 +136,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col >= 1 && row <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             col--;
             row++;
@@ -231,7 +146,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col <= 8 && row >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             row--;
             col++;
@@ -241,15 +156,15 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col >= 1 && row >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             row--;
             col--;
         }
-
-//        throw new RuntimeException("Not implemented");
+        //        throw new RuntimeException("Not implemented");
         return possibleMoves;
     }
+
     private Collection<ChessMove> knightFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         int col = myPosition.getColumn();
@@ -264,19 +179,11 @@ public class ChessPiece {
                 {row-2, col+1},
                 {row-2, col-1}
         };
-        for (int[] coordinate : coordinateArray) {
-            row = coordinate[0];
-            col = coordinate[1];
-            if (row >8 || row <= 0 || col > 8 || col <= 0)
-                continue;
-            ChessPosition nextPosition = new ChessPosition(row, col);
-            longMoveHelper(board, myPosition, nextPosition, possibleMoves);
-        }
-        return possibleMoves;
+        return coordinateMovementHelper(board, myPosition, possibleMoves, coordinateArray);
     }
 
     // Returns true if it needs to stop, returns false if it is to continue
-    private boolean longMoveHelper(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves) {
+    private boolean shouldStopMoving(ChessBoard board, ChessPosition myPosition, ChessPosition nextPosition, ArrayList<ChessMove> possibleMoves) {
         // If the position in question is NOT the same as the one we're on, and the two positions have matching colors, then we can't move there. Or anywhere in that direction.
         if (!nextPosition.equals(myPosition) && board.getPiece(nextPosition) != null && board.getPiece(nextPosition).getTeamColor() == board.getPiece(myPosition).getTeamColor())
             return true;
@@ -291,14 +198,21 @@ public class ChessPiece {
         }
         return false;
     }
+
+    // This overloaded method is used for the rook.
     private Collection<ChessMove> rookFindMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        return rookFindMoves(board, myPosition, possibleMoves);
+    }
+
+    // This method is used for the queen.
+    private ArrayList<ChessMove> rookFindMoves(ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> possibleMoves) {
         // move right
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         while (col <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             col++;
         }
@@ -306,7 +220,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (col >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             col--;
         }
@@ -314,7 +228,7 @@ public class ChessPiece {
         col = myPosition.getColumn();
         while (row <= 8) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             row++;
         }
@@ -322,11 +236,10 @@ public class ChessPiece {
         row = myPosition.getRow();
         while (row >= 1) {
             ChessPosition nextPosition = new ChessPosition(row, col);
-            if (longMoveHelper(board, myPosition, nextPosition, possibleMoves))
+            if (shouldStopMoving(board, myPosition, nextPosition, possibleMoves))
                 break;
             row--;
         }
-//        throw new RuntimeException("Not implemented");
         return possibleMoves;
     }
 
