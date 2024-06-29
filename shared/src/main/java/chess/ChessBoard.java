@@ -66,20 +66,19 @@ public class ChessBoard {
             squares[row][6] = new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT);
             squares[row][7] = new ChessPiece(teamColor, ChessPiece.PieceType.ROOK);
         }
-//        toString();
     }
 
-    public void compareSquares(ChessBoard otherBoard) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                ChessPiece piece = this.squares[i][j];
-                ChessPiece otherPiece = otherBoard.squares[i][j];
-                if (piece != null && !piece.equals(otherPiece)) {
-                    System.out.printf("The Coordinates failed at ", i, j);
-                }
-            }
-        }
-    }
+//    public void compareSquares(ChessBoard otherBoard) {
+//        for (int i = 0; i < 8; i++) {
+//            for (int j = 0; j < 8; j++) {
+//                ChessPiece piece = this.squares[i][j];
+//                ChessPiece otherPiece = otherBoard.squares[i][j];
+//                if (piece != null && !piece.equals(otherPiece)) {
+//                    System.out.printf("The Coordinates failed at ", i, j);
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public boolean equals(Object o) {

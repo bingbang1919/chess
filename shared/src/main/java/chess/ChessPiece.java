@@ -76,7 +76,6 @@ public class ChessPiece {
             case KNIGHT -> knightFindMoves(board, myPosition);
             case ROOK -> rookFindMoves(board, myPosition);
             case PAWN -> pawnFindMoves(board, myPosition);
-            default -> throw new RuntimeException("Didn't find a compatible type for this piece");
         };
     }
 
@@ -161,7 +160,6 @@ public class ChessPiece {
             row--;
             col--;
         }
-        //        throw new RuntimeException("Not implemented");
         return possibleMoves;
     }
 
