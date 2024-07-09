@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -60,14 +61,28 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessBoard cloneboard = board.clone();
         ChessPosition startPosition = move.getStartPosition();
+        if (board.getPiece(startPosition) == null)
+            throw new InvalidMoveException("There is no piece at the starting position");
         ChessPosition endPosition = move.getEndPosition();
-        ChessPiece clonepiece = cloneboard.getPiece(startPosition).clone();
-        cloneboard.squares[endPosition.getRow()-1][endPosition.getColumn()-1] = null;
-        cloneboard.addPiece(endPosition, clonepiece);
-        cloneboard.squares[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
-        if (isInCheck(teamTurn))
+        ChessPiece piece = board.getPiece(startPosition).clone();
+
+        // Checks if the move is even possible for the given piece
+        ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(board,startPosition);
+        if (!possibleMoves.contains(move)) {
+            throw new InvalidMoveException("This is not a valid move for this piece");
+        }
+        // Checks if the move doesn't put the king at risk
+        board.squares[endPosition.getRow()-1][endPosition.getColumn()-1] = null;
+            // verifies and executes a pawn promotion
+            if (move.getPromotionPiece() != null)
+                piece = new ChessPiece(teamTurn, move.getPromotionPiece());
+        board.addPiece(endPosition, piece);
+        board.squares[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
+        if (isInCheck(teamTurn)) {
+            setBoard(cloneboard);
             throw new InvalidMoveException("That's gonna put you in check");
-        setBoard(cloneboard);
+        }
+        if (teamTurn == TeamColor.WHITE) teamTurn = TeamColor.BLACK; else teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -77,7 +92,26 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        ChessPosition kingPosition = null;
+        for (int i=0;i<8;i++) {
+            for (int j=0;j<8;j++) {
+                ChessPosition currentPosition = new ChessPosition(i+1,j+1);
+                if (board.squares[i][j] != null) {
+                    if (board.getPiece(currentPosition).getTeamColor() != teamColor) {
+                        possibleMoves.addAll(board.getPiece(currentPosition).pieceMoves(board, currentPosition));
+                    }
+                    if (board.getPiece(currentPosition).getTeamColor() == teamTurn  && board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                        kingPosition = currentPosition;
+                    }
+                }
+            }
+        }
+        for (ChessMove move : possibleMoves) {
+            if (move.getEndPosition().equals(kingPosition))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -86,6 +120,8 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+
+    // This is going to use the makeMove method to essentially make every possible move and if any of them result in no Check, then it returns false.
     public boolean isInCheckmate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
     }
