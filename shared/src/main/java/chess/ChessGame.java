@@ -15,6 +15,7 @@ public class ChessGame {
     private ChessBoard board = new ChessBoard();
 
     public ChessGame() {
+        board.resetBoard();
     }
 
     /**
@@ -86,7 +87,8 @@ public class ChessGame {
             throw new InvalidMoveException("There is no piece at the starting position");
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition).clone();
-
+        if (piece.getTeamColor() != teamTurn)
+            throw new InvalidMoveException("Not your turn");
         // Checks if the move is even possible for the given piece
         ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(board,startPosition);
         if (!possibleMoves.contains(move)) {
@@ -124,7 +126,7 @@ public class ChessGame {
                     if (board.getPiece(currentPosition).getTeamColor() != teamColor) {
                         possibleMoves.addAll(board.getPiece(currentPosition).pieceMoves(board, currentPosition));
                     }
-                    if (board.getPiece(currentPosition).getTeamColor() == teamTurn  && board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                    if (board.getPiece(currentPosition).getTeamColor() == teamColor  && board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
                         kingPosition = currentPosition;
                     }
                 }
@@ -134,6 +136,7 @@ public class ChessGame {
             if (move.getEndPosition().equals(kingPosition))
                 return true;
         }
+
         return false;
     }
 
@@ -154,7 +157,7 @@ public class ChessGame {
                 }
             }
         }
-        return possibleMoves.isEmpty();
+        return possibleMoves.isEmpty() && isInCheck(teamColor);
     }
 
     /**
@@ -165,7 +168,16 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        for (int i=0;i<8;i++) {
+            for (int j=0;j<8;j++) {
+                ChessPosition currentPosition = new ChessPosition(i+1,j+1);
+                if (board.squares[i][j] != null && board.squares[i][j].getTeamColor() == teamColor) {
+                    possibleMoves.addAll(validMoves(currentPosition));
+                }
+            }
+        }
+        return !isInCheck(teamColor) && possibleMoves.isEmpty();
     }
 
     /**
