@@ -49,7 +49,28 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return board.getPiece(startPosition).pieceMoves(board,startPosition);
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        if (board.getPiece(startPosition) == null)
+            return possibleMoves;
+        setTeamTurn(board.getPiece(startPosition).getTeamColor());
+        ChessPiece piece = board.getPiece(startPosition).clone();
+        ArrayList<ChessMove> pieceMoves = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
+        // Checks if the move doesn't put the king at risk
+        for (ChessMove move : pieceMoves) {
+            ChessBoard ogBoard = board.clone();
+            ChessPosition endPosition = move.getEndPosition();
+            board.squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = null;
+            // verifies and executes a pawn promotion
+            if (move.getPromotionPiece() != null)
+                piece = new ChessPiece(teamTurn, move.getPromotionPiece());
+            board.addPiece(endPosition, piece);
+            board.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1] = null;
+            if (!isInCheck(teamTurn)) {
+                possibleMoves.add(move);
+            }
+            board = ogBoard;
+        }
+        return possibleMoves;
     }
 
     /**
@@ -71,6 +92,7 @@ public class ChessGame {
         if (!possibleMoves.contains(move)) {
             throw new InvalidMoveException("This is not a valid move for this piece");
         }
+
         // Checks if the move doesn't put the king at risk
         board.squares[endPosition.getRow()-1][endPosition.getColumn()-1] = null;
             // verifies and executes a pawn promotion
@@ -91,6 +113,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
+
     public boolean isInCheck(TeamColor teamColor) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         ChessPosition kingPosition = null;
@@ -121,9 +144,17 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
 
-    // This is going to use the makeMove method to essentially make every possible move and if any of them result in no Check, then it returns false.
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        for (int i=0;i<8;i++) {
+            for (int j=0;j<8;j++) {
+                ChessPosition currentPosition = new ChessPosition(i+1,j+1);
+                if (board.squares[i][j] != null && board.squares[i][j].getTeamColor() == teamColor) {
+
+                }
+            }
+        }
+        return false;
     }
 
     /**
