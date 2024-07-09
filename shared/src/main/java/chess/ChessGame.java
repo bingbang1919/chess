@@ -150,11 +150,11 @@ public class ChessGame {
             for (int j=0;j<8;j++) {
                 ChessPosition currentPosition = new ChessPosition(i+1,j+1);
                 if (board.squares[i][j] != null && board.squares[i][j].getTeamColor() == teamColor) {
-
+                    possibleMoves.addAll(validMoves(currentPosition));
                 }
             }
         }
-        return false;
+        return possibleMoves.isEmpty();
     }
 
     /**
