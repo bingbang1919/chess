@@ -136,18 +136,9 @@ public class ChessGame {
             if (move.getEndPosition().equals(kingPosition))
                 return true;
         }
-
         return false;
     }
-
-    /**
-     * Determines if the given team is in checkmate
-     *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
-     */
-
-    public boolean isInCheckmate(TeamColor teamColor) {
+    private boolean gameStatusHelper(TeamColor teamColor) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         for (int i=0;i<8;i++) {
             for (int j=0;j<8;j++) {
@@ -157,9 +148,17 @@ public class ChessGame {
                 }
             }
         }
-        return possibleMoves.isEmpty() && isInCheck(teamColor);
+        return possibleMoves.isEmpty();
     }
-
+    /**
+     * Determines if the given team is in checkmate
+     *
+     * @param teamColor which team to check for checkmate
+     * @return True if the specified team is in checkmate
+     */
+    public boolean isInCheckmate(TeamColor teamColor) {
+        return gameStatusHelper(teamColor) && isInCheck(teamColor);
+    }
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
@@ -168,18 +167,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-        for (int i=0;i<8;i++) {
-            for (int j=0;j<8;j++) {
-                ChessPosition currentPosition = new ChessPosition(i+1,j+1);
-                if (board.squares[i][j] != null && board.squares[i][j].getTeamColor() == teamColor) {
-                    possibleMoves.addAll(validMoves(currentPosition));
-                }
-            }
-        }
-        return !isInCheck(teamColor) && possibleMoves.isEmpty();
+        return !isInCheck(teamColor) && gameStatusHelper(teamColor);
     }
-
     /**
      * Sets this game's chessboard with a given board
      *
