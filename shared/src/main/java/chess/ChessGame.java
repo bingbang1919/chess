@@ -17,7 +17,6 @@ public class ChessGame {
     public ChessGame() {
         board.resetBoard();
     }
-
     /**
      * @return Which team's turn it is
      */
@@ -88,13 +87,12 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition).clone();
         if (piece.getTeamColor() != teamTurn)
-            throw new InvalidMoveException("Not your turn");
+            throw new InvalidMoveException("Not your piece");
         // Checks if the move is even possible for the given piece
         ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(board,startPosition);
         if (!possibleMoves.contains(move)) {
             throw new InvalidMoveException("This is not a valid move for this piece");
         }
-
         // Checks if the move doesn't put the king at risk
         board.squares[endPosition.getRow()-1][endPosition.getColumn()-1] = null;
             // verifies and executes a pawn promotion
