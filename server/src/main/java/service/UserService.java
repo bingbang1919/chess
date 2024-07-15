@@ -1,4 +1,20 @@
 package service;
 
-public class UserService implements AuthService{
+import model.*;
+
+import java.util.UUID;
+
+public class UserService extends Service{
+    public AuthData register(UserData user) {
+        String username = user.username();
+        String authToken = makeAuthToken();
+        return new AuthData(authToken, username);
+    }
+    public AuthData login(UserData user) {
+        String username = user.username();
+        String authToken = makeAuthToken();
+        return new AuthData(authToken, username);
+    }
+    public void logout(UserData user) {
+    }
 }
