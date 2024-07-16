@@ -1,7 +1,7 @@
 package service;
 
 import model.*;
-
+import dataaccess.*;
 import java.util.ArrayList;
 
 public class GameService extends Service{

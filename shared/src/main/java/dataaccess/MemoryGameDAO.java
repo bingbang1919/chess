@@ -1,8 +1,7 @@
 package dataaccess;
 
 import model.GameData;
-import model.UserData;
-
+import dataaccess.*;
 import java.util.Map;
 
 public class MemoryGameDAO implements DataAccessObjects.GameDAO {
