@@ -8,6 +8,5 @@ public class Service {
             return UUID.randomUUID().toString();
         }
         public void clear() {
-
         }
 }
