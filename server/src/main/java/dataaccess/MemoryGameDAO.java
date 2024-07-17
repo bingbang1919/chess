@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import model.AuthData;
 import model.GameData;
 import dataaccess.*;
 
@@ -8,31 +10,34 @@ import java.util.Map;
 
 public class MemoryGameDAO implements DataAccessObjects.GameDAO {
     MemoryGameDAO() {}
-    private Map<String, GameData> games;
+    private Map<Integer, GameData> games;
 
-    @Override
     public GameData getGame(int id) throws DataAccessException {
-        return null;
+        GameData data = games.get(id);
+        if (data != null)
+            return data;
+        throw new DataAccessException("Game ID queried does not exist");
     }
 
-    @Override
-    public void addGame(String name, int id, String whiteUser, String blackUser) throws DataAccessException {
-
+    public void addGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException {
+        GameData data = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        games.put(gameID, data);
+        if (games.get(gameID) == null)
+            throw new DataAccessException("Game Data was not correctly registered.");
     }
 
-    @Override
     public void removeGame(int id) throws DataAccessException {
-
+        games.remove(id);
+        if (games.get(id) == null)
+            throw new DataAccessException("Game Data was not correctly removed.");
     }
 
-    @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return null;
+        return games.values();
     }
 
-    @Override
     public void clear() throws DataAccessException {
-
+        games.clear();
     }
 
 }
