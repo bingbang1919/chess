@@ -33,7 +33,6 @@ public class Server {
             res.status(200);
             return "{}";
         } catch (Exception e) {
-//            System.out.println(e.getMessage());
             res.status(500);
             return gson.toJson(e.getMessage());
         }

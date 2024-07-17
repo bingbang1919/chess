@@ -6,11 +6,19 @@ import model.GameData;
 import dataaccess.*;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryGameDAO implements DataAccessObjects.GameDAO {
-    MemoryGameDAO() {}
-    private Map<Integer, GameData> games;
+    private Map<Integer, GameData> games = new HashMap<>();
+    private static MemoryGameDAO instance;
+
+
+    public static MemoryGameDAO getInstance() {
+        if (instance == null)
+            instance = new MemoryGameDAO();
+        return instance;
+    }
 
     public GameData getGame(int id) throws DataAccessException {
         GameData data = games.get(id);
@@ -39,5 +47,4 @@ public class MemoryGameDAO implements DataAccessObjects.GameDAO {
     public void clear() throws DataAccessException {
         games.clear();
     }
-
 }

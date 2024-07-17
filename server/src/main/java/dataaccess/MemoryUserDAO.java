@@ -9,6 +9,13 @@ import java.util.Map;
 public class MemoryUserDAO implements DataAccessObjects.UserDAO {
 
     private Map<String, UserData> users = new HashMap<>();
+    private static MemoryUserDAO instance;
+
+    public static MemoryUserDAO getInstance() {
+        if (instance == null)
+            instance = new MemoryUserDAO();
+        return instance;
+    }
 
     public UserData getUser(String username) throws DataAccessException {
         UserData user = users.get(username);
@@ -30,11 +37,11 @@ public class MemoryUserDAO implements DataAccessObjects.UserDAO {
             throw new DataAccessException("User Data was not correctly removed.");
     }
 
-    public Collection<UserData> listUsers() throws DataAccessException {
+    public Collection<UserData> listUsers() throws DataAccessException{
         return users.values();
     }
 
-    public void clear() throws DataAccessException {
+    public void clear() throws DataAccessException{
         users.clear();
     }
 }
