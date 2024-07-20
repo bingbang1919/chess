@@ -2,15 +2,17 @@ package service;
 
 import java.util.UUID;
 import dataaccess.*;
-import dataaccess.MemoryGameDAO.*;
 
-public class Service implements DataAccessObjects{
-        protected String makeAuthToken() {
+public class Service{
+
+
+    protected String makeAuthToken() {
             return UUID.randomUUID().toString();
         }
-        public void clear() throws DataAccessException {
-            MemoryUserDAO.getInstance().clear();
-            MemoryGameDAO.getInstance().clear();
-            MemoryAuthDAO.getInstance().clear();
-        }
+    public void clear(DataAccessObjects authDao, DataAccessObjects gameDao, DataAccessObjects userDao) throws DataAccessException {
+        authDao.clear();
+        gameDao.clear();
+        userDao.clear();
+    }
+
 }

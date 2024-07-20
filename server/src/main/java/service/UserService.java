@@ -8,7 +8,8 @@ public class UserService extends Service{
     public AuthData register(UserData user) {
         String username = user.username();
         String authToken = makeAuthToken();
-        return new AuthData(authToken, username);
+        AuthData authData = new AuthData(authToken, username);
+        return authData;
     }
     public AuthData login(UserData user) {
         String username = user.username();
