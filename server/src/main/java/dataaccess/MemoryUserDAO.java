@@ -33,7 +33,7 @@ public class MemoryUserDAO implements DataAccessObjects.UserDAO {
 
     public void removeUser(String username) throws DataAccessException {
         users.remove(username);
-        if (users.get(username) == null)
+        if (users.get(username) != null)
             throw new DataAccessException("User Data was not correctly removed.");
     }
 

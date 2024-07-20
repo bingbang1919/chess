@@ -36,7 +36,7 @@ public class MemoryGameDAO implements DataAccessObjects.GameDAO {
 
     public void removeGame(int id) throws DataAccessException {
         games.remove(id);
-        if (games.get(id) == null)
+        if (games.get(id) != null)
             throw new DataAccessException("Game Data was not correctly removed.");
     }
 

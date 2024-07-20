@@ -34,7 +34,7 @@ public class MemoryAuthDAO implements DataAccessObjects.AuthDAO {
 
     public void removeUser(String token) throws DataAccessException {
         authTokens.remove(token);
-        if (authTokens.get(token) == null)
+        if (authTokens.get(token) != null)
             throw new DataAccessException("Auth Data was not correctly removed.");
     }
 

@@ -1,9 +1,7 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessObjects;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import service.*;
 import service.Service;
 import spark.*;
@@ -41,6 +39,11 @@ public class Server {
         Spark.init();
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
+        Spark.post("/session", this::login);
+        Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
+        Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
         Spark.awaitInitialization();
         return Spark.port();
     }
@@ -77,10 +80,32 @@ public class Server {
         // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object login(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        final Gson gson = new Gson();
+        var userRequest = new Gson().fromJson(req.body(), LoginRequest.class);
+        try {
+            UserService service = new UserService();
+            AuthData response = service.login(userRequest, AuthDAO, UserDAO);
+            res.status(200);
+            return new Gson().toJson(response);
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(e.getMessage());
+        }
+        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object logout(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        final Gson gson = new Gson();
+        SingleAuthentication userRequest = new SingleAuthentication(req.headers("authorization"));
+        try {
+            UserService service = new UserService();
+            service.logout(userRequest, AuthDAO, UserDAO);
+            res.status(200);
+            return "{}";
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(e.getMessage());
+        }
+        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object listGames(Request req, Response res) {
         throw new RuntimeException("Not implemented");
