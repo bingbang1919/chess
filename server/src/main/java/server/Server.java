@@ -4,16 +4,15 @@ import dataaccess.DataAccessObjects;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import requestResponseModels.*;
 import service.*;
 import service.Service;
 import spark.*;
 
 public class Server {
 
-    private DataAccessObjects AuthDAO;
-    private DataAccessObjects GameDAO;
-    private DataAccessObjects UserDAO;
+    private DataAccessObjects.AuthDAO AuthDAO;
+    private DataAccessObjects.GameDAO GameDAO;
+    private DataAccessObjects.UserDAO UserDAO;
 
     public Server() {
         UserDAO = null;
@@ -21,13 +20,13 @@ public class Server {
         AuthDAO = null;
     }
 
-    public void setAuthDAO(DataAccessObjects dao) {
+    public void setAuthDAO(DataAccessObjects.AuthDAO dao) {
         AuthDAO = dao;
     }
-    public void setGameDAO(DataAccessObjects dao) {
+    public void setGameDAO(DataAccessObjects.GameDAO dao) {
         GameDAO = dao;
     }
-    public void setUserDAO(DataAccessObjects dao) {
+    public void setUserDAO(DataAccessObjects.UserDAO dao) {
         UserDAO = dao;
     }
 
@@ -65,16 +64,17 @@ public class Server {
     }
     private Object register(Request req, Response res) {
         final Gson gson = new Gson();
-        var userRequest = new Gson().fromJson(req.body(), registerRequest.class);
+        var userRequest = new Gson().fromJson(req.body(), UserData.class);
         try {
             UserService service = new UserService();
-//            AuthData data = service.register()
+            AuthData response = service.register(userRequest, AuthDAO, UserDAO);
             res.status(200);
-            return new Gson().toJson(userRequest);
+            return new Gson().toJson(response);
         } catch (Exception e) {
             res.status(500);
             return gson.toJson(e.getMessage());
         }
+        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object login(Request req, Response res) {
         throw new RuntimeException("Not implemented");

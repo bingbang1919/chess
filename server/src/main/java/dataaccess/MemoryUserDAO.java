@@ -24,9 +24,9 @@ public class MemoryUserDAO implements DataAccessObjects.UserDAO {
         throw new DataAccessException("Username queried does not exist");
     }
 
-    public void addUser(String username, String password, String email) throws DataAccessException {
-        UserData data = new UserData(username, password, email);
-        users.put(username, data);
+    public void addUser(UserData user) throws DataAccessException {
+        String username = user.username();
+        users.put(username, user);
         if (users.get(username) == null)
             throw new DataAccessException("User Data was not correctly registered.");
     }

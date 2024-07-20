@@ -1,8 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import dataaccess.*;
-import model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,9 +25,9 @@ public class MemoryAuthDAO implements DataAccessObjects.AuthDAO {
         throw new DataAccessException("AuthToken queried does not exist");
     }
 
-    public void addAuth(String username, String token) throws DataAccessException {
-        AuthData data = new AuthData(username, token);
-        authTokens.put(username, data);
+    public void addAuth(AuthData auth) throws DataAccessException {
+        String token = auth.authToken();
+        authTokens.put(token, auth);
         if (authTokens.get(token) == null)
             throw new DataAccessException("Auth Data was not correctly registered.");
     }
