@@ -15,7 +15,7 @@ public interface DataAccessObjects {
     }
     interface GameDAO extends DataAccessObjects {
         GameData getGame(int id) throws DataAccessException;
-        void addGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException;
+        void addGame(GameData data) throws DataAccessException;
         void removeGame(int id) throws DataAccessException;
         Collection<GameData> listGames() throws DataAccessException;
     }

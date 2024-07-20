@@ -6,6 +6,8 @@ import service.*;
 import service.Service;
 import spark.*;
 
+import java.util.Collection;
+
 public class Server {
 
     private DataAccessObjects.AuthDAO AuthDAO;
@@ -108,13 +110,45 @@ public class Server {
         // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object listGames(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        final Gson gson = new Gson();
+        SingleAuthentication userRequest = new SingleAuthentication(req.headers("authorization"));
+        try {
+            GameService service = new GameService();
+            Collection<GameData> gameList = service.listGames(userRequest, AuthDAO, GameDAO);
+            res.status(200);
+            return gson.toJson(gameList);
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(e.getMessage());
+        }
     }
     private Object createGame(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        final Gson gson = new Gson();
+        String token = req.headers("authorization");
+        var request = new Gson().fromJson(req.body(), CreateGameRequest.class);
+        try {
+            GameService service = new GameService();
+            GameData data = service.createGame(token, request, AuthDAO, GameDAO);
+            res.status(200);
+            return gson.toJson(data.gameID());
+            // TODO: make a legit return type
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(e.getMessage());
+        }
     }
     private Object joinGame(Request req, Response res) {
-        throw new RuntimeException("Not implemented");
+        final Gson gson = new Gson();
+        String token = req.headers("authorization");
+        var request = new Gson().fromJson(req.body(), JoinGameRequest.class);
+        try {
+            GameService service = new GameService();
+            service.joinGame(request, token, AuthDAO, GameDAO);
+            res.status(200);
+            return "{}";
+        } catch (Exception e) {
+            res.status(500);
+            return gson.toJson(e.getMessage());
+        }
     }
-
 }

@@ -27,8 +27,8 @@ public class MemoryGameDAO implements DataAccessObjects.GameDAO {
         throw new DataAccessException("Game ID queried does not exist");
     }
 
-    public void addGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException {
-        GameData data = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    public void addGame(GameData data) throws DataAccessException {
+        int gameID = data.gameID();
         games.put(gameID, data);
         if (games.get(gameID) == null)
             throw new DataAccessException("Game Data was not correctly registered.");
