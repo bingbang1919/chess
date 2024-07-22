@@ -1,6 +1,9 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessObjects;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
 import model.*;
 import service.*;
 import service.Service;
@@ -15,19 +18,9 @@ public class Server {
     private DataAccessObjects.UserDAO UserDAO;
 
     public Server() {
-        UserDAO = null;
-        GameDAO = null;
-        AuthDAO = null;
-    }
-
-    public void setAuthDAO(DataAccessObjects.AuthDAO dao) {
-        AuthDAO = dao;
-    }
-    public void setGameDAO(DataAccessObjects.GameDAO dao) {
-        GameDAO = dao;
-    }
-    public void setUserDAO(DataAccessObjects.UserDAO dao) {
-        UserDAO = dao;
+        UserDAO = MemoryUserDAO.getInstance();
+        GameDAO = MemoryGameDAO.getInstance();
+        AuthDAO = MemoryAuthDAO.getInstance();
     }
 
     public int run(int desiredPort) {
