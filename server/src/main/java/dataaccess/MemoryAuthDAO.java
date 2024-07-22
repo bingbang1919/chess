@@ -38,11 +38,8 @@ public class MemoryAuthDAO implements DataAccessObjects.AuthDAO {
             throw new DataAccessException("Auth Data was not correctly removed.");
     }
 
-    public Collection<AuthData> listAuth() throws DataAccessException {
-        return authTokens.values();
-    }
 
-    public void clear() throws DataAccessException {
+    public void clear() {
         authTokens.clear();
     }
 }

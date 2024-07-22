@@ -7,7 +7,7 @@ import dataaccess.*;
 import java.util.Collection;
 
 public class GameService extends Service{
-    private int gameIdCounter = 1;
+
     public Collection<GameData> listGames(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
         String token = authToken.authentication();
         authDAO.getAuth(token);

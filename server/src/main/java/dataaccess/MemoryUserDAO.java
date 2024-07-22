@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class MemoryUserDAO implements DataAccessObjects.UserDAO {
 
-    private Map<String, UserData> users = new HashMap<>();
+    private final Map<String, UserData> users = new HashMap<>();
     private static MemoryUserDAO instance;
 
     public static MemoryUserDAO getInstance() {
@@ -31,17 +31,7 @@ public class MemoryUserDAO implements DataAccessObjects.UserDAO {
             throw new DataAccessException("User Data was not correctly registered.");
     }
 
-    public void removeUser(String username) throws DataAccessException {
-        users.remove(username);
-        if (users.get(username) != null)
-            throw new DataAccessException("User Data was not correctly removed.");
-    }
-
-    public Collection<UserData> listUsers() throws DataAccessException{
-        return users.values();
-    }
-
-    public void clear() throws DataAccessException{
+    public void clear() {
         users.clear();
     }
 }

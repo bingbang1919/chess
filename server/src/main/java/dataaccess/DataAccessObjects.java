@@ -10,8 +10,6 @@ public interface DataAccessObjects {
     interface UserDAO extends DataAccessObjects {
         UserData getUser(String username) throws DataAccessException;
         void addUser(UserData user) throws DataAccessException;
-        void removeUser(String username) throws DataAccessException;
-        Collection<UserData> listUsers() throws DataAccessException;
     }
     interface GameDAO extends DataAccessObjects {
         GameData getGame(int id) throws DataAccessException;
@@ -23,6 +21,5 @@ public interface DataAccessObjects {
         AuthData getAuth(String token) throws DataAccessException;
         void addAuth(AuthData auth) throws DataAccessException;
         void removeUser(String token) throws DataAccessException;
-        Collection<AuthData> listAuth() throws DataAccessException;
     }
 }
