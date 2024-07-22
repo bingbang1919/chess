@@ -10,9 +10,11 @@ import java.util.Collection;
 
 public class Server {
 
-    private DataAccessObjects.AuthDAO AuthDAO;
-    private DataAccessObjects.GameDAO GameDAO;
-    private DataAccessObjects.UserDAO UserDAO;
+    private final DataAccessObjects.AuthDAO AuthDAO;
+    private final DataAccessObjects.GameDAO GameDAO;
+    private final DataAccessObjects.UserDAO UserDAO;
+
+    private int gameCounter = 1;
 
     public Server() {
         UserDAO = MemoryUserDAO.getInstance();
@@ -54,7 +56,7 @@ public class Server {
             return "{}";
         } catch (Exception e) {
             res.status(500);
-            return gson.toJson(e.getMessage());
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
     }
     private Object register(Request req, Response res) {
@@ -72,7 +74,6 @@ public class Server {
             res.status(400);
             return gson.toJson(new ErrorResponse(e.getMessage()));
         }
-        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object login(Request req, Response res) {
         final Gson gson = new Gson();
@@ -91,7 +92,6 @@ public class Server {
             ErrorResponse response = new ErrorResponse(e.getMessage());
             return gson.toJson(response);
         }
-        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object logout(Request req, Response res) {
         final Gson gson = new Gson();
@@ -108,7 +108,6 @@ public class Server {
             res.status(500);
             return gson.toJson(new ErrorResponse(e.getMessage()));
         }
-        // TODO: you need to write the error stuff for all of this. Not just 500.
     }
     private Object listGames(Request req, Response res) {
         final Gson gson = new Gson();
@@ -117,10 +116,13 @@ public class Server {
             GameService service = new GameService();
             Collection<GameData> gameList = service.listGames(userRequest, AuthDAO, GameDAO);
             res.status(200);
-            return gson.toJson(gameList);
+            return gson.toJson(new ListGamesResponse(gameList));
+        } catch (DataAccessException e) {
+            res.status(401);
+            return gson.toJson(new ErrorResponse("Error: unauthorized"));
         } catch (Exception e) {
             res.status(500);
-            return gson.toJson(e.getMessage());
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
     }
     private Object createGame(Request req, Response res) {
@@ -129,13 +131,19 @@ public class Server {
         var request = new Gson().fromJson(req.body(), CreateGameRequest.class);
         try {
             GameService service = new GameService();
-            GameData data = service.createGame(token, request, AuthDAO, GameDAO);
+            GameData data = service.createGame(gameCounter, token, request, AuthDAO, GameDAO);
             res.status(200);
-            return gson.toJson(data.gameID());
-            // TODO: make a legit return type
+            gameCounter += 1;
+            return gson.toJson(new CreateGameResponse(data.gameID()));
+        } catch (DataAccessException e) {
+            res.status(401);
+            return gson.toJson(new ErrorResponse("Error: unauthorized"));
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             res.status(500);
-            return gson.toJson(e.getMessage());
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
     }
     private Object joinGame(Request req, Response res) {
@@ -147,7 +155,17 @@ public class Server {
             service.joinGame(request, token, AuthDAO, GameDAO);
             res.status(200);
             return "{}";
-        } catch (Exception e) {
+        } catch (DataAccessException e) {
+            res.status(401);
+            return gson.toJson(new ErrorResponse("Error: unauthorized"));
+        } catch (IllegalArgumentException e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse("Error: bad request"));
+        } catch (IllegalAccessException e) {
+            res.status(403);
+            return gson.toJson(new ErrorResponse("Error: already taken"));
+        }
+        catch (Exception e) {
             res.status(500);
             return gson.toJson(e.getMessage());
         }

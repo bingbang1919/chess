@@ -14,26 +14,34 @@ public class GameService extends Service{
         return gameDAO.listGames();
     }
 
-    public GameData createGame(String authToken, CreateGameRequest gameRequest, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
+    public GameData createGame(int gameCounter, String authToken, CreateGameRequest gameRequest, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException, IllegalArgumentException {
         authDAO.getAuth(authToken);
-        // TODO: possible that you use the right authtoken on the wrong person?
-        int id = gameIdCounter;
-        gameIdCounter += 1;
-        GameData data = new GameData(id, null, null, gameRequest.gameName(), new ChessGame());
+        if (gameRequest.gameName() == null) {
+            throw new IllegalArgumentException("Error: bad request");
+        }
+        GameData data = new GameData(gameCounter, null, null, gameRequest.gameName(), new ChessGame());
         gameDAO.addGame(data);
         return data;
     }
 
     public void joinGame(JoinGameRequest userRequest, String authToken, DataAccessObjects.AuthDAO authDAO,
-                         DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
+                         DataAccessObjects.GameDAO gameDAO) throws DataAccessException, IllegalAccessException, IllegalArgumentException {
+        if (userRequest.gameID() == null || userRequest.playerColor() == null) {
+            throw new IllegalArgumentException("");
+        }
         AuthData authData = authDAO.getAuth(authToken);
-        // TODO: possible that you use the right authtoken on the wrong person?
         ChessGame.TeamColor color = userRequest.playerColor();
         String username = authData.username();
         int id = userRequest.gameID();
         GameData gameData = gameDAO.getGame(id);
         String white = gameData.whiteUsername();
         String black = gameData.blackUsername();
+        if (color == ChessGame.TeamColor.WHITE && white != null) {
+            throw new IllegalAccessException("");
+        }
+        if (color == ChessGame.TeamColor.BLACK && black != null) {
+            throw new IllegalAccessException("");
+        }
         String name = gameData.gameName();
         ChessGame game = gameData.game();
         // TODO: Need to create cases where color is already taken.
