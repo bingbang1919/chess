@@ -1,9 +1,6 @@
 package server;
 import com.google.gson.Gson;
-import dataaccess.DataAccessObjects;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.*;
 import service.*;
 import service.Service;
@@ -67,10 +64,13 @@ public class Server {
             UserService service = new UserService();
             AuthData response = service.register(userRequest, AuthDAO, UserDAO);
             res.status(200);
-            return new Gson().toJson(response);
-        } catch (Exception e) {
-            res.status(500);
-            return gson.toJson(e.getMessage());
+             return new Gson().toJson(response);
+        } catch (DataAccessException e) {
+            res.status(403);
+            return gson.toJson(new ErrorResponse(e.getMessage()));
+        } catch (IllegalAccessException e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
         // TODO: you need to write the error stuff for all of this. Not just 500.
     }
@@ -82,9 +82,14 @@ public class Server {
             AuthData response = service.login(userRequest, AuthDAO, UserDAO);
             res.status(200);
             return new Gson().toJson(response);
+        } catch (DataAccessException e) {
+            res.status(401);
+            ErrorResponse response = new ErrorResponse("Error: unauthorized");
+            return gson.toJson(response);
         } catch (Exception e) {
             res.status(500);
-            return gson.toJson(e.getMessage());
+            ErrorResponse response = new ErrorResponse(e.getMessage());
+            return gson.toJson(response);
         }
         // TODO: you need to write the error stuff for all of this. Not just 500.
     }
@@ -93,12 +98,15 @@ public class Server {
         SingleAuthentication userRequest = new SingleAuthentication(req.headers("authorization"));
         try {
             UserService service = new UserService();
-            service.logout(userRequest, AuthDAO, UserDAO);
+            service.logout(userRequest, AuthDAO);
             res.status(200);
             return "{}";
+        } catch (DataAccessException e) {
+            res.status(401);
+            return gson.toJson(new ErrorResponse("Error: unauthorized"));
         } catch (Exception e) {
             res.status(500);
-            return gson.toJson(e.getMessage());
+            return gson.toJson(new ErrorResponse(e.getMessage()));
         }
         // TODO: you need to write the error stuff for all of this. Not just 500.
     }
