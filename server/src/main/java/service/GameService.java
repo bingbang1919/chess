@@ -9,9 +9,13 @@ import java.util.Collection;
 public class GameService extends Service{
 
     public Collection<GameData> listGames(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
-        String token = authToken.authentication();
-        authDAO.getAuth(token);
-        return gameDAO.listGames();
+        try {
+            String token = authToken.authentication();
+            authDAO.getAuth(token);
+            return gameDAO.listGames();
+        } catch (Exception e) {
+            throw new DataAccessException("bad request");
+        }
     }
 
     public GameData createGame(int gameCounter, String authToken, CreateGameRequest gameRequest, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException, IllegalArgumentException {
