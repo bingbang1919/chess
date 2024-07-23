@@ -4,10 +4,12 @@ import model.*;
 import dataaccess.*;
 
 public class UserService extends Service{
-    public AuthData register(UserData user, DataAccessObjects.AuthDAO authDao, DataAccessObjects.UserDAO userDao) throws DataAccessException, IllegalAccessException {
+    public AuthData register(UserData user, DataAccessObjects.AuthDAO authDao, DataAccessObjects.UserDAO userDao)
+            throws DataAccessException, IllegalAccessException {
         String username = user.username();
-        if (username == null || user.password() == null || user.email() == null)
+        if (username == null || user.password() == null || user.email() == null) {
             throw new IllegalAccessException("Error: bad request");
+        }
         try {
             userDao.getUser(username);
         } catch (DataAccessException e) {
@@ -18,10 +20,10 @@ public class UserService extends Service{
             return registerResponse;
         }
         throw new DataAccessException("Error: already taken");
-        // TODO: make error response objects
     }
 
-    public AuthData login(LoginRequest user, DataAccessObjects.AuthDAO authDao, DataAccessObjects.UserDAO userDao) throws DataAccessException, IllegalAccessException {
+    public AuthData login(LoginRequest user, DataAccessObjects.AuthDAO authDao, DataAccessObjects.UserDAO userDao)
+            throws DataAccessException {
         String username = user.username();
         String password = user.password();
         UserData dbUser = userDao.getUser(username);
@@ -31,9 +33,9 @@ public class UserService extends Service{
             authDao.addAuth(newAuth);
             return newAuth;
         }
-        else
+        else {
             throw new DataAccessException("Error: unauthorized");
-        // TODO: make error response objects and throw
+        }
     }
     public void logout(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         String token = authToken.authentication();

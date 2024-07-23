@@ -1,15 +1,6 @@
-import chess.*;
-import dataaccess.DataAccessObjects;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
+import chess.ChessGame;
+import chess.ChessPiece;
 import server.Server;
-
-//public class Main {
-//    public static void main(String[] args) {
-//        Spark.get("/hello", (req, res) -> "Hello BYU!");
-//    }
-//}
 
 public class Main {
     public static void main(String[] args) {

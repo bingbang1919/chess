@@ -12,29 +12,33 @@ public class MemoryGameDAO implements DataAccessObjects.GameDAO {
 
 
     public static MemoryGameDAO getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new MemoryGameDAO();
+        }
         return instance;
     }
 
     public GameData getGame(int id) throws DataAccessException {
         GameData data = games.get(id);
-        if (data != null)
+        if (data != null) {
             return data;
+        }
         throw new DataAccessException("Game ID queried does not exist");
     }
 
     public void addGame(GameData data) throws DataAccessException {
         int gameID = data.gameID();
         games.put(gameID, data);
-        if (games.get(gameID) == null)
+        if (games.get(gameID) == null) {
             throw new DataAccessException("Game Data was not correctly registered.");
+        }
     }
 
     public void removeGame(int id) throws DataAccessException {
         games.remove(id);
-        if (games.get(id) != null)
+        if (games.get(id) != null) {
             throw new DataAccessException("Game Data was not correctly removed.");
+        }
     }
 
     public Collection<GameData> listGames() throws DataAccessException {

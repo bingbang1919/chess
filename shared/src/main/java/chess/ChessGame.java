@@ -50,8 +50,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
-        if (board.getPiece(startPosition) == null)
+        if (board.getPiece(startPosition) == null) {
             return possibleMoves;
+        }
         setTeamTurn(board.getPiece(startPosition).getTeamColor());
         ChessPiece piece = board.getPiece(startPosition).clone();
         ArrayList<ChessMove> pieceMoves = (ArrayList<ChessMove>) piece.pieceMoves(board, startPosition);
@@ -61,8 +62,9 @@ public class ChessGame {
             ChessPosition endPosition = move.getEndPosition();
             board.squares[endPosition.getRow() - 1][endPosition.getColumn() - 1] = null;
             // verifies and executes a pawn promotion
-            if (move.getPromotionPiece() != null)
+            if (move.getPromotionPiece() != null) {
                 piece = new ChessPiece(teamTurn, move.getPromotionPiece());
+            }
             board.addPiece(endPosition, piece);
             board.squares[startPosition.getRow() - 1][startPosition.getColumn() - 1] = null;
             if (!isInCheck(teamTurn)) {
@@ -82,12 +84,14 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessBoard cloneboard = board.clone();
         ChessPosition startPosition = move.getStartPosition();
-        if (board.getPiece(startPosition) == null)
+        if (board.getPiece(startPosition) == null) {
             throw new InvalidMoveException("There is no piece at the starting position");
+        }
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition).clone();
-        if (piece.getTeamColor() != teamTurn)
+        if (piece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException("Not your piece");
+        }
         // Checks if the move is even possible for the given piece
         ArrayList<ChessMove> possibleMoves = (ArrayList<ChessMove>) piece.pieceMoves(board,startPosition);
         if (!possibleMoves.contains(move)) {
@@ -96,15 +100,20 @@ public class ChessGame {
         // Checks if the move doesn't put the king at risk
         board.squares[endPosition.getRow()-1][endPosition.getColumn()-1] = null;
             // verifies and executes a pawn promotion
-            if (move.getPromotionPiece() != null)
+            if (move.getPromotionPiece() != null) {
                 piece = new ChessPiece(teamTurn, move.getPromotionPiece());
+            }
         board.addPiece(endPosition, piece);
         board.squares[startPosition.getRow()-1][startPosition.getColumn()-1] = null;
         if (isInCheck(teamTurn)) {
             setBoard(cloneboard);
             throw new InvalidMoveException("That's gonna put you in check");
         }
-        if (teamTurn == TeamColor.WHITE) teamTurn = TeamColor.BLACK; else teamTurn = TeamColor.WHITE;
+        if (teamTurn == TeamColor.WHITE) {
+            teamTurn = TeamColor.BLACK;
+        } else {
+            teamTurn = TeamColor.WHITE;
+        }
     }
 
     /**
@@ -124,15 +133,17 @@ public class ChessGame {
                     if (board.getPiece(currentPosition).getTeamColor() != teamColor) {
                         possibleMoves.addAll(board.getPiece(currentPosition).pieceMoves(board, currentPosition));
                     }
-                    if (board.getPiece(currentPosition).getTeamColor() == teamColor  && board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
+                    if (board.getPiece(currentPosition).getTeamColor() == teamColor  &&
+                            board.getPiece(currentPosition).getPieceType() == ChessPiece.PieceType.KING) {
                         kingPosition = currentPosition;
                     }
                 }
             }
         }
         for (ChessMove move : possibleMoves) {
-            if (move.getEndPosition().equals(kingPosition))
+            if (move.getEndPosition().equals(kingPosition)) {
                 return true;
+            }
         }
         return false;
     }

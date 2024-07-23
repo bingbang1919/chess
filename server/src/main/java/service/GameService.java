@@ -8,7 +8,8 @@ import java.util.Collection;
 
 public class GameService extends Service{
 
-    public Collection<GameData> listGames(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
+    public Collection<GameData> listGames(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDAO,
+                                          DataAccessObjects.GameDAO gameDAO) throws DataAccessException {
         try {
             String token = authToken.authentication();
             authDAO.getAuth(token);
@@ -18,7 +19,8 @@ public class GameService extends Service{
         }
     }
 
-    public GameData createGame(int gameCounter, String authToken, CreateGameRequest gameRequest, DataAccessObjects.AuthDAO authDAO, DataAccessObjects.GameDAO gameDAO) throws DataAccessException, IllegalArgumentException {
+    public GameData createGame(int gameCounter, String authToken, CreateGameRequest gameRequest, DataAccessObjects.AuthDAO authDAO,
+                               DataAccessObjects.GameDAO gameDAO) throws DataAccessException, IllegalArgumentException {
         authDAO.getAuth(authToken);
         if (gameRequest.gameName() == null) {
             throw new IllegalArgumentException("Error: bad request");
@@ -48,7 +50,6 @@ public class GameService extends Service{
         }
         String name = gameData.gameName();
         ChessGame game = gameData.game();
-        // TODO: Need to create cases where color is already taken.
         switch(color) {
             case WHITE -> white = username;
             case BLACK -> black = username;

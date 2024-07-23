@@ -10,16 +10,16 @@ import java.util.Collection;
 
 public class Server {
 
-    private final DataAccessObjects.AuthDAO AuthDAO;
-    private final DataAccessObjects.GameDAO GameDAO;
-    private final DataAccessObjects.UserDAO UserDAO;
+    private final DataAccessObjects.AuthDAO authDao;
+    private final DataAccessObjects.GameDAO gameDao;
+    private final DataAccessObjects.UserDAO userDao;
 
     private int gameCounter = 1;
 
     public Server() {
-        UserDAO = MemoryUserDAO.getInstance();
-        GameDAO = MemoryGameDAO.getInstance();
-        AuthDAO = MemoryAuthDAO.getInstance();
+        userDao = MemoryUserDAO.getInstance();
+        gameDao = MemoryGameDAO.getInstance();
+        authDao = MemoryAuthDAO.getInstance();
     }
 
     public int run(int desiredPort) {
@@ -51,7 +51,7 @@ public class Server {
         final Gson gson = new Gson();
         try {
             Service service = new Service();
-            service.clear(AuthDAO, GameDAO, UserDAO);
+            service.clear(authDao, gameDao, userDao);
             res.status(200);
             return "{}";
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class Server {
         var userRequest = new Gson().fromJson(req.body(), UserData.class);
         try {
             UserService service = new UserService();
-            AuthData response = service.register(userRequest, AuthDAO, UserDAO);
+            AuthData response = service.register(userRequest, authDao, userDao);
             res.status(200);
              return new Gson().toJson(response);
         } catch (DataAccessException e) {
@@ -80,7 +80,7 @@ public class Server {
         var userRequest = new Gson().fromJson(req.body(), LoginRequest.class);
         try {
             UserService service = new UserService();
-            AuthData response = service.login(userRequest, AuthDAO, UserDAO);
+            AuthData response = service.login(userRequest, authDao, userDao);
             res.status(200);
             return new Gson().toJson(response);
         } catch (DataAccessException e) {
@@ -98,7 +98,7 @@ public class Server {
         SingleAuthentication userRequest = new SingleAuthentication(req.headers("authorization"));
         try {
             UserService service = new UserService();
-            service.logout(userRequest, AuthDAO);
+            service.logout(userRequest, authDao);
             res.status(200);
             return "{}";
         } catch (DataAccessException e) {
@@ -114,7 +114,7 @@ public class Server {
         SingleAuthentication userRequest = new SingleAuthentication(req.headers("authorization"));
         try {
             GameService service = new GameService();
-            Collection<GameData> gameList = service.listGames(userRequest, AuthDAO, GameDAO);
+            Collection<GameData> gameList = service.listGames(userRequest, authDao, gameDao);
             res.status(200);
             return gson.toJson(new ListGamesResponse(gameList));
         } catch (DataAccessException e) {
@@ -131,7 +131,7 @@ public class Server {
         var request = new Gson().fromJson(req.body(), CreateGameRequest.class);
         try {
             GameService service = new GameService();
-            GameData data = service.createGame(gameCounter, token, request, AuthDAO, GameDAO);
+            GameData data = service.createGame(gameCounter, token, request, authDao, gameDao);
             res.status(200);
             gameCounter += 1;
             return gson.toJson(new CreateGameResponse(data.gameID()));
@@ -152,7 +152,7 @@ public class Server {
         var request = new Gson().fromJson(req.body(), JoinGameRequest.class);
         try {
             GameService service = new GameService();
-            service.joinGame(request, token, AuthDAO, GameDAO);
+            service.joinGame(request, token, authDao, gameDao);
             res.status(200);
             return "{}";
         } catch (DataAccessException e) {

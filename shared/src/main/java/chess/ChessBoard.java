@@ -68,22 +68,15 @@ public class ChessBoard implements Cloneable{
         }
     }
 
-//    public void compareSquares(ChessBoard otherBoard) {
-//        for (int i = 0; i < 8; i++) {
-//            for (int j = 0; j < 8; j++) {
-//                ChessPiece piece = this.squares[i][j];
-//                ChessPiece otherPiece = otherBoard.squares[i][j];
-//                if (piece != null && !piece.equals(otherPiece)) {
-//                    System.out.printf("The Coordinates failed at ", i, j);
-//                }
-//            }
-//        }
-//    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessBoard that = (ChessBoard) o;
         return Arrays.deepEquals(squares, that.squares);
     }
