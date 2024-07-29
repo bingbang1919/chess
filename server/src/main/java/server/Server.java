@@ -1,4 +1,5 @@
 package server;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.*;
@@ -22,8 +23,17 @@ public class Server {
             authDao = SequelAuthDAO.getInstance();
             DatabaseManager.configureDatabase();
             // hard-coded tests
-            authDao.addAuth(new AuthData("this is a token", "bingbang1919"));
-
+            authDao.addAuth(new AuthData("this", "bingbang1919"));
+            authDao.addAuth(new AuthData("something else", "someone else"));
+            gameDao.addGame(new GameData(gameCounter, "Ethan", "Tyler", "first game", new ChessGame()));
+            gameDao.addGame(new GameData(2, "Ethan", "Tyler", "second game", new ChessGame()));
+            userDao.addUser(new UserData("Ethan", "something secure", "lol@byu.edu"));
+            userDao.addUser(new UserData("Tyler", "something else secure", "hags@byu.edu"));
+            userDao.clear();
+//            authDao.clear();
+//            gameDao.clear();
+            gameDao.removeGame(1);
+            authDao.removeUser("this");
         } catch (Exception e) {
             System.out.println("Something went terribly wrong");
         }

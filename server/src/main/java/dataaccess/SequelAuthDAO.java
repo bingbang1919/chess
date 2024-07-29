@@ -18,7 +18,8 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE authentication";
+        executeUpdate(statement);
     }
 
     @Override
@@ -35,6 +36,7 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
 
     @Override
     public void removeUser(String token) throws DataAccessException {
-
+        var statement = "DELETE FROM authentication WHERE token=?";
+        executeUpdate(statement, token);
     }
 }

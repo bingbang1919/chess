@@ -19,7 +19,8 @@ public class SequelGameDAO implements DataAccessObjects.GameDAO {
 
     @Override
     public void clear() throws DataAccessException {
-
+        var statement = "TRUNCATE games";
+        executeUpdate(statement);
     }
 
     @Override
@@ -36,7 +37,8 @@ public class SequelGameDAO implements DataAccessObjects.GameDAO {
 
     @Override
     public void removeGame(int id) throws DataAccessException {
-
+        var statement = "DELETE FROM games WHERE gameID=?";
+        executeUpdate(statement, id);
     }
 
     @Override
