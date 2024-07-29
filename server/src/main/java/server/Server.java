@@ -20,6 +20,10 @@ public class Server {
             userDao = SequelUserDAO.getInstance();
             gameDao = SequelGameDAO.getInstance();
             authDao = SequelAuthDAO.getInstance();
+            DatabaseManager.configureDatabase();
+            // hard-coded tests
+            authDao.addAuth(new AuthData("this is a token", "bingbang1919"));
+
         } catch (Exception e) {
             System.out.println("Something went terribly wrong");
         }

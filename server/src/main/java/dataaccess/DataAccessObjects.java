@@ -1,12 +1,36 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.*;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
 
 public interface DataAccessObjects {
     void clear() throws DataAccessException;
+     default void executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    switch (param) {
+                        case String p -> ps.setString(i + 1, p);
+                        case Integer p -> ps.setInt(i + 1, p);
+                        case null -> ps.setNull(i + 1, NULL);
+                        default -> {
+                        }
+                    }
+                }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
     interface UserDAO extends DataAccessObjects {
         UserData getUser(String username) throws DataAccessException;
         void addUser(UserData user) throws DataAccessException;
