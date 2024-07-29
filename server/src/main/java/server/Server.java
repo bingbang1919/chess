@@ -10,16 +10,19 @@ import java.util.Collection;
 
 public class Server {
 
-    private final DataAccessObjects.AuthDAO authDao;
-    private final DataAccessObjects.GameDAO gameDao;
-    private final DataAccessObjects.UserDAO userDao;
-
+    private DataAccessObjects.AuthDAO authDao;
+    private DataAccessObjects.GameDAO gameDao;
+    private DataAccessObjects.UserDAO userDao;
     private int gameCounter = 1;
 
     public Server() {
-        userDao = MemoryUserDAO.getInstance();
-        gameDao = MemoryGameDAO.getInstance();
-        authDao = MemoryAuthDAO.getInstance();
+        try {
+            userDao = SequelUserDAO.getInstance();
+            gameDao = SequelGameDAO.getInstance();
+            authDao = SequelAuthDAO.getInstance();
+        } catch (Exception e) {
+            System.out.println("Something went terribly wrong");
+        }
     }
 
     public int run(int desiredPort) {
