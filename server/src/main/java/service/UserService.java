@@ -42,4 +42,5 @@ public class UserService extends Service{
         authDao.getAuth(token);
         authDao.removeUser(token);
     }
+
 }

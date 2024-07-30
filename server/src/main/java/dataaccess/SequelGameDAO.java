@@ -80,4 +80,5 @@ public class SequelGameDAO implements DataAccessObjects.GameDAO {
         var json = rs.getString("GameData");
         return new Gson().fromJson(json, GameData.class);
     }
+
 }
