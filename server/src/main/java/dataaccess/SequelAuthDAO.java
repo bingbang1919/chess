@@ -35,6 +35,9 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
                     if (rs.next()){
                         result = readUser(rs);
                     }
+                    if (result == null) {
+                        throw new Exception();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -50,9 +53,13 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
 
     @Override
     public void addAuth(AuthData auth) throws DataAccessException {
-        var statement = "INSERT INTO authentication (token, AuthData) VALUES (?, ?)";
-        var json = new Gson().toJson(auth);
-        executeUpdate(statement, auth.authToken(), json);
+        try {
+            var statement = "INSERT INTO authentication (token, AuthData) VALUES (?, ?)";
+            var json = new Gson().toJson(auth);
+            executeUpdate(statement, auth.authToken(), json);
+        } catch (Exception e) {
+            throw new DataAccessException("");
+        }
     }
 
     @Override

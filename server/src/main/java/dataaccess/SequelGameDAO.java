@@ -37,6 +37,9 @@ public class SequelGameDAO implements DataAccessObjects.GameDAO {
                     if (rs.next()){
                         result = readGame(rs);
                     }
+                    if (result == null) {
+                        throw new Exception();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -47,15 +50,23 @@ public class SequelGameDAO implements DataAccessObjects.GameDAO {
 
     @Override
     public void addGame(GameData data) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, GameData) VALUES (?, ?)";
-        var json = new Gson().toJson(data);
-        executeUpdate(statement, data.gameID(), json);
+        try{
+            var statement = "INSERT INTO games (gameID, GameData) VALUES (?, ?)";
+            var json = new Gson().toJson(data);
+            executeUpdate(statement, data.gameID(), json);
+        } catch (Exception e) {
+            throw new DataAccessException("could not add game");
+        }
     }
 
     @Override
     public void removeGame(int id) throws DataAccessException {
-        var statement = "DELETE FROM games WHERE gameID=?";
-        executeUpdate(statement, id);
+        try {
+            var statement = "DELETE FROM games WHERE gameID=?";
+            executeUpdate(statement, id);
+        } catch (Exception e) {
+            throw new DataAccessException("could not remove game");
+        }
     }
 
     @Override

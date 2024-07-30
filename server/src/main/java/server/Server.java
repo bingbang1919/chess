@@ -23,8 +23,6 @@ public class Server {
             authDao = SequelAuthDAO.getInstance();
             DatabaseManager.configureDatabase();
             // hard-coded tests
-//            authDao.addAuth(new AuthData("this", "bingbang1919"));
-//            authDao.addAuth(new AuthData("something else", "someone else"));
 //            gameDao.addGame(new GameData(gameCounter, "Ethan", "Tyler", "first game", new ChessGame()));
 //            gameDao.addGame(new GameData(2, "Ethan", "Tyler", "second game", new ChessGame()));
 //            userDao.addUser(new UserData("Ethan", "something secure", "lol@byu.edu"));

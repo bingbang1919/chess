@@ -53,8 +53,12 @@ public class SequelUserDAO implements DataAccessObjects.UserDAO{
 
     @Override
     public void addUser(UserData user) throws DataAccessException {
-        var statement = "INSERT INTO users (username, UserData) VALUES (?, ?)";
-        var json = new Gson().toJson(user);
-        executeUpdate(statement, user.username(), json);
+        try {
+            var statement = "INSERT INTO users (username, UserData) VALUES (?, ?)";
+            var json = new Gson().toJson(user);
+            executeUpdate(statement, user.username(), json);
+        } catch (Exception e) {
+            throw  new DataAccessException("could not add user to db");
+        }
     }
 }
