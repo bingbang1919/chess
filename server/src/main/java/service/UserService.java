@@ -2,14 +2,18 @@ package service;
 
 import model.*;
 import dataaccess.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class UserService extends Service{
     public AuthData register(UserData user, DataAccessObjects.AuthDAO authDao, DataAccessObjects.UserDAO userDao)
             throws DataAccessException, IllegalAccessException {
-        String username = user.username();
-        if (username == null || user.password() == null || user.email() == null) {
+        if (user.username() == null || user.password() == null || user.email() == null) {
             throw new IllegalAccessException("Error: bad request");
         }
+        String username = user.username();
+        String password = hashPassword(user.password());
+        String email = user.email();
+        user = new UserData(username, password, email);
         try {
             userDao.getUser(username);
         } catch (DataAccessException e) {
@@ -27,7 +31,7 @@ public class UserService extends Service{
         String username = user.username();
         String password = user.password();
         UserData dbUser = userDao.getUser(username);
-        if (dbUser.password().equals(password)) {
+        if (passwordMatches(password, dbUser.password())) {
             String token = makeAuthToken();
             AuthData newAuth = new AuthData(token, username);
             authDao.addAuth(newAuth);
@@ -41,6 +45,14 @@ public class UserService extends Service{
         String token = authToken.authentication();
         authDao.getAuth(token);
         authDao.removeUser(token);
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private boolean passwordMatches(String password, String hash) {
+        return BCrypt.checkpw(password, hash);
     }
 
 }
