@@ -22,23 +22,6 @@ public class Server {
             gameDao = SequelGameDAO.getInstance();
             authDao = SequelAuthDAO.getInstance();
             DatabaseManager.configureDatabase();
-            // hard-coded tests
-//            gameDao.addGame(new GameData(gameCounter, "Ethan", "Tyler", "first game", new ChessGame()));
-//            gameDao.addGame(new GameData(2, "Ethan", "Tyler", "second game", new ChessGame()));
-//            userDao.addUser(new UserData("Ethan", "something secure", "lol@byu.edu"));
-//            userDao.addUser(new UserData("Tyler", "something else secure", "hags@byu.edu"));
-//            userDao.clear();
-//            authDao.clear();
-//            gameDao.clear();
-//            gameDao.removeGame(1);
-//            authDao.removeUser("this");
-//            System.out.println(gameDao.listGames());
-//            System.out.println(gameDao.getGame(2));
-//            System.out.println(userDao.getUser("Ethan"));
-//            System.out.println(authDao.getAuth("this"));
-//            userDao.getUser("username");
-
-
         } catch (Exception e) {
             System.out.println("Something went terribly wrong");
         }
