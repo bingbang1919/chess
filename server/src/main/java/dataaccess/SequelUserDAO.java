@@ -34,10 +34,13 @@ public class SequelUserDAO implements DataAccessObjects.UserDAO{
                     if (rs.next()){
                         result = readUser(rs);
                     }
+                    if (result == null) {
+                        throw new Exception();
+                    }
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Could not get game");
+            throw new DataAccessException("Could not get user");
         }
         return result;
     }

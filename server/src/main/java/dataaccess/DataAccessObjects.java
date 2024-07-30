@@ -19,8 +19,7 @@ public interface DataAccessObjects {
                     switch (param) {
                         case String p -> ps.setString(i + 1, p);
                         case Integer p -> ps.setInt(i + 1, p);
-                        default -> {
-                        }
+                        default -> throw new IllegalStateException("Unexpected value: " + param);
                     }
                 }
                 ps.executeUpdate();
