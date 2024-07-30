@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SequelUserDAO implements DataAccessObjects.UserDAO{
@@ -16,8 +17,6 @@ public class SequelUserDAO implements DataAccessObjects.UserDAO{
         return instance;
     }
 
-
-
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE users";
@@ -26,7 +25,26 @@ public class SequelUserDAO implements DataAccessObjects.UserDAO{
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        UserData result = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT UserData FROM users WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1,username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()){
+                        result = readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Could not get game");
+        }
+        return result;
+    }
+
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var json = rs.getString("UserData");
+        return new Gson().fromJson(json, UserData.class);
     }
 
     @Override

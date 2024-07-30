@@ -2,7 +2,9 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
@@ -24,7 +26,26 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
 
     @Override
     public AuthData getAuth(String token) throws DataAccessException {
-        return null;
+        AuthData result = null;
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT AuthData FROM authentication WHERE token=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1,token);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()){
+                        result = readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Could not get game");
+        }
+        return result;
+    }
+
+    private AuthData readUser(ResultSet rs) throws SQLException {
+        var json = rs.getString("AuthData");
+        return new Gson().fromJson(json, AuthData.class);
     }
 
     @Override
