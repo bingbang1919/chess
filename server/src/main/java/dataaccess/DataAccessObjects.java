@@ -2,12 +2,10 @@ package dataaccess;
 
 import model.*;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
+
 
 public interface DataAccessObjects {
     void clear() throws DataAccessException;
