@@ -59,7 +59,7 @@ public class ServerFacade {
             http.addRequestProperty("authorization", ((SingleAuthentication) request).authentication());
         }
         else if (request.getClass() == CreateGameRequest.class) {
-            http.addRequestProperty("authorization", );
+//            http.addRequestProperty("authorization", );
         }
 
     }
