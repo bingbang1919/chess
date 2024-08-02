@@ -12,7 +12,6 @@ public class PreloginREPL {
     public void run() {
         System.out.println("Welcome to the results of my life during Summer Term!");
         while (true) {
-
             if (loggedIn) {
                 new PostloginREPL(serverURL).run();
             }

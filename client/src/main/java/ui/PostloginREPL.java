@@ -13,4 +13,28 @@ public class PostloginREPL {
             }
         }
     }
+
+    private void help() {
+
+    }
+
+    private void logout() {
+
+    }
+
+    private void createGame() {
+
+    }
+
+    private void listGames() {
+
+    }
+
+    private void playGame() {
+
+    }
+
+    private void observeGame() {
+
+    }
 }
