@@ -90,7 +90,7 @@ public class ChessClient {
         } else {
             throw new IllegalArgumentException("Hey you tried to log in, but there were a wrong number of arguments.");
         }
-        return new Gson().toJson(authentication);
+        return "LOGGEDIN";
     }
 
     public String register(String ... params) throws IllegalAccessException {

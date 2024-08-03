@@ -13,7 +13,6 @@ public class PostloginREPL {
 
     private final ChessClient client;
     public void run() {
-        System.out.println("Welcome to the results of my life during Summer Term!");
         Scanner scanner = new Scanner(System.in);
         System.out.println(client.help());
         while (true) {

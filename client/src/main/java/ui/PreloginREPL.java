@@ -32,6 +32,9 @@ public class PreloginREPL {
                 System.out.println("Thank you for a-playing my game!");
                 System.exit(0);
             }
+            if (output.equals("LOGGEDIN")) {
+                isLoggedIn = true;
+            }
             System.out.println(output);
         }
     }
