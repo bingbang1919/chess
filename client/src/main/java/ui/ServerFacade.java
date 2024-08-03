@@ -1,3 +1,5 @@
+package ui;
+
 import com.google.gson.Gson;
 import model.*;
 
@@ -50,18 +52,18 @@ public class ServerFacade {
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
-            throw new IllegalAccessException("Make Request is not make requesting");
+            throw new IllegalAccessException("Make Request is not make requesting: " + ex);
         }
     }
 
     private static void writeHeaders(Object request, HttpURLConnection http) {
-        if (request.getClass() == SingleAuthentication.class) {
-            http.addRequestProperty("authorization", ((SingleAuthentication) request).authentication());
-        }
-        else if (request.getClass() == CreateGameRequest.class) {
-//            http.addRequestProperty("authorization", );
-        }
-
+//        if (request.getClass() == SingleAuthentication.class) {
+//            http.addRequestProperty("authorization", ((SingleAuthentication) request).authentication());
+//        }
+//        else if (request.getClass() == CreateGameRequest.class) {
+////            http.addRequestProperty("authorization", );
+//        }
+        http.addRequestProperty("authorization", ChessClient.authToken);
     }
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {

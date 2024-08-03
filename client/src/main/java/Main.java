@@ -9,7 +9,7 @@ public class Main {
         if (args.length == 1) {
             serverUrl = args[0];
         }
-        new PreloginREPL(serverUrl, new ChessClient()).run();
+        new PreloginREPL(serverUrl, new ChessClient(serverUrl)).run();
     }
 
 }

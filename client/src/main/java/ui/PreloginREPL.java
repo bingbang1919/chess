@@ -32,9 +32,7 @@ public class PreloginREPL {
                 System.out.println("Thank you for a-playing my game!");
                 System.exit(0);
             }
+            System.out.println(output);
         }
     }
-
-
-
 }

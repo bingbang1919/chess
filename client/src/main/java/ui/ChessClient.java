@@ -1,12 +1,19 @@
 package ui;
 
+import com.google.gson.Gson;
+import model.AuthData;
+import model.LoginRequest;
 import java.util.Arrays;
-import static ui.EscapeSequences.*;
 
+import model.UserData;
+import ui.ServerFacade;
 public class ChessClient {
 
-
-
+    private final ServerFacade facade;
+    public static String authToken = null;
+    public ChessClient(String url) {
+        facade = new ServerFacade(url);
+    }
 
     public String eval(String input) {
         boolean isLoggedIn = PreloginREPL.isLoggedIn;
@@ -72,20 +79,33 @@ public class ChessClient {
         return "quit";
     }
 
-    public String login(String ... params) {
+    public String login(String ... params) throws IllegalAccessException {
+        AuthData authentication;
         if (params.length == 2) {
             String username = params[0];
             String password = params[1];
-
+            LoginRequest request = new LoginRequest(username, password);
+            authentication = facade.login(request);
+            authToken = authentication.authToken();
         } else {
             throw new IllegalArgumentException("Hey you tried to log in, but there were a wrong number of arguments.");
         }
-
+        return new Gson().toJson(authentication);
     }
 
-    public String register(String ... params) {
-        return null;
-
+    public String register(String ... params) throws IllegalAccessException {
+        AuthData authentication;
+        if (params.length == 3) {
+            String username = params[0];
+            String password = params[1];
+            String email = params[2];
+            UserData request = new UserData(username, password, email);
+            authentication = facade.register(request);
+            authToken = authentication.authToken();
+        } else {
+            throw new IllegalArgumentException("Hey you tried to register, but there were a wrong number of arguments.");
+        }
+        return new Gson().toJson(authentication);
     }
 
     public String logout() {
