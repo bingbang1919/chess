@@ -2,6 +2,7 @@ import chess.*;
 import ui.PreloginREPL;
 
 public class Main {
+    public static String authToken;
     public static void main(String[] args) {
         var serverUrl = "http://localhost:8080";
         if (args.length == 1) {
@@ -9,4 +10,5 @@ public class Main {
         }
         new PreloginREPL(serverUrl).run();
     }
+
 }
