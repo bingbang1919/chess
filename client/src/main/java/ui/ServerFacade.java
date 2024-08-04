@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import model.*;
 
 import java.io.*;
@@ -18,56 +19,67 @@ public class ServerFacade {
         client = c;
     }
 
-    public AuthData register(UserData user) throws IllegalAccessException {
-        var path = "/user";
-        return makeRequest("POST", path, user, AuthData.class);
+    public AuthData register(UserData user) throws Exception {
+        try {
+            var path = "/user";
+            return makeRequest("POST", path, user, AuthData.class);
+        } catch (IllegalAccessException e) {
+            throw new Exception("Error: bad request.");
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Error: already taken.");
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public AuthData login(LoginRequest request) throws IllegalAccessException {
+    public AuthData login(LoginRequest request) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         var path = "/session";
         return makeRequest("POST", path, request, AuthData.class);
     }
 
-    public void logout() throws IllegalAccessException {
+    public void logout() throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         var path = "/session";
         makeRequest("DELETE", path, null, null);
     }
 
-    public Collection<GameData> listGames() throws IllegalAccessException {
+    public Collection<GameData> listGames() throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         var path = "/game";
         return makeRequest("GET", path, null, ListGamesResponse.class).games();
     }
 
-    public CreateGameResponse createGame(String name) throws IllegalAccessException {
+    public CreateGameResponse createGame(String name) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         var path = "/game";
         CreateGameRequest request = new CreateGameRequest(name);
         return makeRequest("POST", path, request, CreateGameResponse.class);
     }
 
-    public void joinGame(Integer gameID, TeamColor color) throws IllegalAccessException {
+    public void joinGame(Integer gameID, TeamColor color) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         var path = "/game";
         JoinGameRequest request = new JoinGameRequest(color, gameID);
         makeRequest("PUT", path, request, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws IllegalAccessException {
-        try {
-            URL url = (new URI(serverURL + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
+        URL url = (new URI(serverURL + path)).toURL();
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+        http.setRequestMethod(method);
+        http.setDoOutput(true);
 
-            http.addRequestProperty("authorization", client.authToken);
-            writeBody(request, http);
-            http.connect();
-            if (http.getResponseCode() != 200) {
-                ErrorResponse response = readError(http);
-                throw new Exception(response.message());
+        http.addRequestProperty("authorization", client.authToken);
+        writeBody(request, http);
+        http.connect();
+        if (http.getResponseCode() != 200) {
+            if (http.getResponseCode() == 400) {
+                throw new IllegalAccessException();
+            } else if (http.getResponseCode() == 401) {
+                throw new DataAccessException("");
+            } else if (http.getResponseCode() == 403) {
+                throw new IllegalArgumentException();
+            } else if (http.getResponseCode() == 500) {
+                throw new RuntimeException();
             }
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new IllegalAccessException("Make Request is not make requesting: " + ex.getMessage());
         }
+        return readBody(http, responseClass);
     }
 
     private void writeBody(Object request, HttpURLConnection http) throws IOException {

@@ -4,13 +4,18 @@ package ui;
 import chess.ChessGame.TeamColor;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import model.*;
-import java.util.Arrays;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public class ChessClient {
 
     private final ServerFacade facade;
     public String authToken = null;
+    public Map<Integer, Integer> registeredGames = null;
     public ChessClient(String url) {
         facade = new ServerFacade(url, this);
     }
@@ -79,7 +84,7 @@ public class ChessClient {
         return "quit";
     }
 
-    public String login(String ... params) throws IllegalAccessException {
+    public String login(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
         AuthData authentication;
         if (params.length == 2) {
             String username = params[0];
@@ -93,7 +98,7 @@ public class ChessClient {
         return "LOGGEDIN";
     }
 
-    public String register(String ... params) throws IllegalAccessException {
+    public String register(String ... params) throws Exception {
         AuthData authentication;
         if (params.length == 3) {
             String username = params[0];
@@ -108,14 +113,14 @@ public class ChessClient {
         return new Gson().toJson(authentication);
     }
 
-    public String logout() throws IllegalAccessException {
-        PreloginREPL.isLoggedIn = false;
-        authToken = null;
+    public String logout() throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
         facade.logout();
-        return null;
+        authToken = null;
+        PreloginREPL.isLoggedIn = false;
+        return "Logged out";
     }
 
-    public String createGame(String ... params) throws IllegalAccessException {
+    public String createGame(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
         String name = params[0];
         if (params.length == 1) {
             CreateGameResponse game = facade.createGame(name);
@@ -126,23 +131,54 @@ public class ChessClient {
         }
     }
 
-    public String listGames() throws IllegalAccessException {
-        return facade.listGames().toString();
+    public String listGames() throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+        Map<Integer, Integer> gameMap = new HashMap<>();
+        ArrayList<GameData> games = (ArrayList<GameData>) facade.listGames();
+        String returnString = "";
+        for (int i=0; i<games.size(); i++) {
+            GameData game;
+            game = games.get(i);
+            Integer gamenum = i+1;
+            gameMap.put(gamenum, game.gameID());
+            String users = game.whiteUsername() + ", " + game.blackUsername();
+            returnString = returnString + "Game Number " + gamenum + ": " + game.gameName() + '\n' + "Players (white, black): " + users + "\n\n" ;
+        }
+        registeredGames = gameMap;
+        return returnString;
     }
 
-    public String playGame(String ... params) throws IllegalAccessException {
-        Integer gameID = Integer.valueOf(params[0]);
-        TeamColor color = switch (params[1]) {
-            case "black" -> TeamColor.BLACK;
-            case "white" -> TeamColor.WHITE;
-            default -> throw new IllegalStateException("Unexpected value: " + params[1]);
-        };
-        facade.joinGame(gameID, color);
-        return null;
+    public String playGame(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+        if (isInteger(params[0])){
+            Integer gameID = Integer.valueOf(params[0]);
+            TeamColor color = switch (params[1]) {
+                case "black" -> TeamColor.BLACK;
+                case "white" -> TeamColor.WHITE;
+                default -> throw new IllegalStateException("Second argument must be a chess team color: <BLACK|WHITE>");
+            };
+            facade.joinGame(gameID, color);
+        }
+        else {
+            throw new IllegalArgumentException("Game ID must be an integer.");
+        }
+        return "Successfully joined game #" + params[0];
     }
 
     public String observeGame(String ... params) {
-        Integer gameID = Integer.valueOf(params[0]);
-        return gameID.toString();
+        if (isInteger(params[0])) {
+            int gameID = Integer.parseInt(params[0]);
+            return "Observing game #" + gameID;
+        }
+        else {
+            throw new IllegalArgumentException("Game ID must be an integer");
+        }
+    }
+
+    boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        }catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

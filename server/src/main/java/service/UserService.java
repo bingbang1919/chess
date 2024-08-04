@@ -38,7 +38,7 @@ public class UserService extends Service{
             return newAuth;
         }
         else {
-            throw new DataAccessException("Error: unauthorized");
+            throw new DataAccessException("Wrong username/password.");
         }
     }
     public void logout(SingleAuthentication authToken, DataAccessObjects.AuthDAO authDao) throws DataAccessException {

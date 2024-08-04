@@ -58,7 +58,7 @@ public class SequelAuthDAO implements DataAccessObjects.AuthDAO {
             var json = new Gson().toJson(auth);
             executeUpdate(statement, auth.authToken(), json);
         } catch (Exception e) {
-            throw new DataAccessException("");
+            throw new DataAccessException("Could not add authentication.");
         }
     }
 

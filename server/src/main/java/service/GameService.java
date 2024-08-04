@@ -43,10 +43,10 @@ public class GameService extends Service{
         String white = gameData.whiteUsername();
         String black = gameData.blackUsername();
         if (color == ChessGame.TeamColor.WHITE && white != null) {
-            throw new IllegalAccessException("");
+            throw new IllegalAccessException("White is already taken.");
         }
         if (color == ChessGame.TeamColor.BLACK && black != null) {
-            throw new IllegalAccessException("");
+            throw new IllegalAccessException("Black is already taken.");
         }
         String name = gameData.gameName();
         ChessGame game = gameData.game();
