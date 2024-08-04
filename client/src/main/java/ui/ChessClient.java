@@ -1,12 +1,12 @@
 package ui;
 
+
+import chess.ChessGame.TeamColor;
+
 import com.google.gson.Gson;
-import model.AuthData;
-import model.LoginRequest;
+import model.*;
 import java.util.Arrays;
 
-import model.UserData;
-import ui.ServerFacade;
 public class ChessClient {
 
     private final ServerFacade facade;
@@ -108,27 +108,41 @@ public class ChessClient {
         return new Gson().toJson(authentication);
     }
 
-    public String logout() {
+    public String logout() throws IllegalAccessException {
         PreloginREPL.isLoggedIn = false;
+        authToken = null;
+        facade.logout();
         return null;
     }
 
-    public String createGame(String ... params) {
-        return null;
-
+    public String createGame(String ... params) throws IllegalAccessException {
+        String name = params[0];
+        if (params.length == 1) {
+            CreateGameResponse game = facade.createGame(name);
+            return game.gameID().toString();
+        }
+        else {
+            throw new IllegalArgumentException("Wrong number of arguments.");
+        }
     }
 
-    public String listGames() {
-        return null;
-
+    public String listGames() throws IllegalAccessException {
+        return facade.listGames().toString();
     }
 
-    public String playGame(String ... params) {
+    public String playGame(String ... params) throws IllegalAccessException {
+        Integer gameID = Integer.valueOf(params[0]);
+        TeamColor color = switch (params[1]) {
+            case "black" -> TeamColor.BLACK;
+            case "white" -> TeamColor.WHITE;
+            default -> throw new IllegalStateException("Unexpected value: " + params[1]);
+        };
+        facade.joinGame(gameID, color);
         return null;
-
     }
 
     public String observeGame(String ... params) {
-        return null;
+        Integer gameID = Integer.valueOf(params[0]);
+        return gameID.toString();
     }
 }

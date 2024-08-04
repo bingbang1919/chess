@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
 import model.*;
 
@@ -24,21 +25,26 @@ public class ServerFacade {
     }
 
     public void logout() throws IllegalAccessException {
-        throw new RuntimeException("Not implemented yet");
+        var path = "/session";
+        makeRequest("DELETE", path, null, null);
     }
 
     public Collection<GameData> listGames() throws IllegalAccessException {
-        throw new RuntimeException("Not implemented yet");
+        var path = "/game";
+        return makeRequest("GET", path, null, ListGamesResponse.class).games();
     }
 
-    public GameData createGame() throws IllegalAccessException {
-        throw new RuntimeException("Not implemented yet");
+    public CreateGameResponse createGame(String name) throws IllegalAccessException {
+        var path = "/game";
+        CreateGameRequest request = new CreateGameRequest(name);
+        return makeRequest("POST", path, request, CreateGameResponse.class);
     }
 
-    public void joinGame() throws IllegalAccessException {
-        throw new RuntimeException("Not implemented yet");
+    public void joinGame(Integer gameID, TeamColor color) throws IllegalAccessException {
+        var path = "/game";
+        JoinGameRequest request = new JoinGameRequest(color, gameID);
+        makeRequest("PUT", path, request, null);
     }
-
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws IllegalAccessException {
         try {
@@ -47,28 +53,18 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
+            http.addRequestProperty("authorization", ChessClient.authToken);
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
         } catch (Exception ex) {
-            throw new IllegalAccessException("Make Request is not make requesting: " + ex);
+            throw new IllegalAccessException("Make Request is not make requesting: " + ex.getMessage());
         }
-    }
-
-    private static void writeHeaders(Object request, HttpURLConnection http) {
-//        if (request.getClass() == SingleAuthentication.class) {
-//            http.addRequestProperty("authorization", ((SingleAuthentication) request).authentication());
-//        }
-//        else if (request.getClass() == CreateGameRequest.class) {
-////            http.addRequestProperty("authorization", );
-//        }
-        http.addRequestProperty("authorization", ChessClient.authToken);
     }
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
-            writeHeaders(request, http);
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
