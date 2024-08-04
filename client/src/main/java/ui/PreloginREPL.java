@@ -18,24 +18,26 @@ public class PreloginREPL {
     public static boolean running = true;
 
     public void run() {
-        System.out.print(SET_TEXT_COLOR_BLUE + "Welcome to the results of my life during Summer Term!");
+        System.out.print(SET_TEXT_COLOR_WHITE + "Welcome to the results of my life during Summer Term!");
         Scanner scanner = new Scanner(System.in);
         System.out.println(client.help());
         while (running) {
             if (isLoggedIn) {
                 new PostloginREPL(serverURL, client).run();
             }
-            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_RED + "LOGGED OUT, enter a response: ");
+            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_LIGHT_GREY + "[LOGGED OUT]" + SET_BG_COLOR_BLACK +  SET_TEXT_COLOR_WHITE + " Enter a Response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
             if (Objects.equals(output, "quit")) {
-                System.out.println("Thank you for a-playing my game!");
+                System.out.println(SET_TEXT_BLINKING + SET_TEXT_COLOR_MAGENTA + "Have a nice day!");
                 System.exit(0);
             }
             if (output.equals("LOGGEDIN")) {
                 isLoggedIn = true;
             }
-            System.out.println(output);
+            else {
+                System.out.println(output);
+            }
         }
     }
 }

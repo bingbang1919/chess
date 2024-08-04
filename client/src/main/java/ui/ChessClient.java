@@ -10,9 +10,9 @@ import java.util.Arrays;
 public class ChessClient {
 
     private final ServerFacade facade;
-    public static String authToken = null;
+    public String authToken = null;
     public ChessClient(String url) {
-        facade = new ServerFacade(url);
+        facade = new ServerFacade(url, this);
     }
 
     public String eval(String input) {
@@ -51,10 +51,10 @@ public class ChessClient {
         if (PreloginREPL.isLoggedIn) {
             helpScreen = """
                     
-                    create NAME
+                    create <NAME>
                     list
-                    join ID WHITE|BLACK
-                    observe ID
+                    join <ID> <WHITE|BLACK>
+                    observe <ID>
                     logout
                     quit
                     help
@@ -64,8 +64,8 @@ public class ChessClient {
         } else {
             helpScreen = """
                     
-                    register USERNAME PASSWORD EMAIL
-                    login USERNAME PASSWORD
+                    register <USERNAME> <PASSWORD> <EMAIL>
+                    login <USERNAME> <PASSWORD>
                     quit
                     help
                     
@@ -88,7 +88,7 @@ public class ChessClient {
             authentication = facade.login(request);
             authToken = authentication.authToken();
         } else {
-            throw new IllegalArgumentException("Hey you tried to log in, but there were a wrong number of arguments.");
+            throw new IllegalArgumentException("Wrong number of arguments.");
         }
         return "LOGGEDIN";
     }
@@ -103,7 +103,7 @@ public class ChessClient {
             authentication = facade.register(request);
             authToken = authentication.authToken();
         } else {
-            throw new IllegalArgumentException("Hey you tried to register, but there were a wrong number of arguments.");
+            throw new IllegalArgumentException("Wrong number of arguments.");
         }
         return new Gson().toJson(authentication);
     }

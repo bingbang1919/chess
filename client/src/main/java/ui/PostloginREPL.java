@@ -19,7 +19,7 @@ public class PostloginREPL {
             if (!PreloginREPL.isLoggedIn) {
                 return;
             }
-            System.out.print(SET_TEXT_BOLD + SET_TEXT_COLOR_YELLOW + "LOGGED IN, enter a response: ");
+            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK + "[LOGGED IN]" + SET_BG_COLOR_BLACK +  SET_TEXT_COLOR_WHITE + " Enter a Response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
             if (Objects.equals(output, "quit")) {

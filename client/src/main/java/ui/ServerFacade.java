@@ -11,8 +11,12 @@ import java.util.Collection;
 public class ServerFacade {
 
     private final String serverURL;
+    private final ChessClient client;
 
-    public ServerFacade(String url) { serverURL = url;}
+    public ServerFacade(String url, ChessClient c) {
+        serverURL = url;
+        client = c;
+    }
 
     public AuthData register(UserData user) throws IllegalAccessException {
         var path = "/user";
@@ -53,17 +57,20 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            http.addRequestProperty("authorization", ChessClient.authToken);
+            http.addRequestProperty("authorization", client.authToken);
             writeBody(request, http);
             http.connect();
-            throwIfNotSuccessful(http);
+            if (http.getResponseCode() != 200) {
+                ErrorResponse response = readError(http);
+                throw new Exception(response.message());
+            }
             return readBody(http, responseClass);
         } catch (Exception ex) {
             throw new IllegalAccessException("Make Request is not make requesting: " + ex.getMessage());
         }
     }
 
-    private static void writeBody(Object request, HttpURLConnection http) throws IOException {
+    private void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
@@ -73,14 +80,8 @@ public class ServerFacade {
         }
     }
 
-    private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, IllegalAccessException {
-        var status = http.getResponseCode();
-        if (status != 200) {
-            throw new IllegalAccessException("");
-        }
-    }
 
-    private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
+    private <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
         T response = null;
         if (http.getContentLength() < 0) {
             try (InputStream respBody = http.getInputStream()) {
@@ -88,6 +89,17 @@ public class ServerFacade {
                 if (responseClass != null) {
                     response = new Gson().fromJson(reader, responseClass);
                 }
+            }
+        }
+        return response;
+    }
+
+    private ErrorResponse readError(HttpURLConnection http) throws IOException {
+        ErrorResponse response = null;
+        if (http.getContentLength() < 0) {
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader reader = new InputStreamReader(respBody);
+                response = new Gson().fromJson(reader, ErrorResponse.class);
             }
         }
         return response;
