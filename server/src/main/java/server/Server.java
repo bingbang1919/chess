@@ -47,7 +47,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    private Object clear(Request req, Response res) {
+    public Object clear(Request req, Response res) {
         final Gson gson = new Gson();
         try {
             Service service = new Service();

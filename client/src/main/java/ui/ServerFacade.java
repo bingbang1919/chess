@@ -55,7 +55,6 @@ public class ServerFacade {
     }
 
     public Collection<GameData> listGames() throws Exception {
-
         try {
             var path = "/game";
             return makeRequest("GET", path, null, ListGamesResponse.class).games();
@@ -106,7 +105,6 @@ public class ServerFacade {
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
         http.setRequestMethod(method);
         http.setDoOutput(true);
-
         http.addRequestProperty("authorization", client.authToken);
         writeBody(request, http);
         http.connect();
@@ -143,17 +141,6 @@ public class ServerFacade {
                 if (responseClass != null) {
                     response = new Gson().fromJson(reader, responseClass);
                 }
-            }
-        }
-        return response;
-    }
-
-    private ErrorResponse readError(HttpURLConnection http) throws IOException {
-        ErrorResponse response = null;
-        if (http.getContentLength() < 0) {
-            try (InputStream respBody = http.getInputStream()) {
-                InputStreamReader reader = new InputStreamReader(respBody);
-                response = new Gson().fromJson(reader, ErrorResponse.class);
             }
         }
         return response;

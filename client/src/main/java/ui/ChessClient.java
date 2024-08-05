@@ -110,11 +110,10 @@ public class ChessClient {
         } else {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
-        return new Gson().toJson(authentication);
+        return "Registered.";
     }
 
     public String logout() throws Exception {
-        // TODO: need to tell them that they used the wrong password.
         facade.logout();
         authToken = null;
         PreloginREPL.isLoggedIn = false;
@@ -149,7 +148,9 @@ public class ChessClient {
     }
 
     public String playGame(String ... params) throws Exception {
-        // TODO: make case for wrong number of arguments
+        if (params.length != 2) {
+            throw new IllegalArgumentException("Wrong number of arguments.");
+        }
         if (isInteger(params[0])){
             Integer gameID = Integer.valueOf(params[0]);
             TeamColor color = switch (params[1]) {
@@ -157,7 +158,7 @@ public class ChessClient {
                 case "white" -> TeamColor.WHITE;
                 default -> throw new IllegalStateException("Second argument must be a chess team color: <BLACK|WHITE>");
             };
-            facade.joinGame(gameID, color);
+            facade.joinGame(registeredGames.get(gameID), color);
         }
         else {
             throw new IllegalArgumentException("Game ID must be an integer.");
@@ -166,7 +167,9 @@ public class ChessClient {
     }
 
     public String observeGame(String ... params) {
-        // TODO: make case for wrong number of arguments
+        if (params.length != 1) {
+            throw new IllegalArgumentException("Wrong number of arguments.");
+        }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
             return "Observing game #" + gameID;
