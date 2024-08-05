@@ -3,12 +3,7 @@ package ui;
 
 import chess.ChessGame.TeamColor;
 
-import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import model.*;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 
 public class ChessClient {
@@ -127,8 +122,8 @@ public class ChessClient {
     public String createGame(String ... params) throws Exception {
         String name = params[0];
         if (params.length == 1) {
-            CreateGameResponse game = facade.createGame(name);
-            return game.gameID().toString();
+            facade.createGame(name);
+            return "Created game.";
         }
         else {
             throw new IllegalArgumentException("Wrong number of arguments.");
@@ -155,6 +150,9 @@ public class ChessClient {
         if (params.length != 2) {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
+        if (registeredGames == null) {
+            throw new Exception("You must list games first.");
+        }
         if (isInteger(params[0])){
             Integer gameID = Integer.valueOf(params[0]);
             TeamColor color = switch (params[1]) {
@@ -167,6 +165,7 @@ public class ChessClient {
         else {
             throw new IllegalArgumentException("Game ID must be an integer.");
         }
+        new GameplayREPL().run();
         return "Successfully joined game #" + params[0];
     }
 
@@ -176,6 +175,7 @@ public class ChessClient {
         }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
+            new GameplayREPL().run();
             return "Observing game #" + gameID;
         }
         else {
