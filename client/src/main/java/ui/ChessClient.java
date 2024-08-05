@@ -109,7 +109,7 @@ public class ChessClient {
         } else {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
-        return "Registered.";
+        return "LOGGEDIN";
     }
 
     public String logout() throws Exception {

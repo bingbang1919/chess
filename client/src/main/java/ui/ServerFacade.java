@@ -2,7 +2,6 @@ package ui;
 
 import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
-//import dataaccess.DataAccessException;
 import model.*;
 
 import java.io.*;
