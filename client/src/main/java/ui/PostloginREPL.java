@@ -5,8 +5,6 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class PostloginREPL {
-    // TODO: You've got to get your stuff together and make a map that contains the authtokens that you might need to use
-
     public  PostloginREPL(String serverURL, ChessClient client) {
         this.client = client;
     }
@@ -19,7 +17,8 @@ public class PostloginREPL {
             if (!PreloginREPL.isLoggedIn) {
                 return;
             }
-            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK + "[LOGGED IN]" + SET_BG_COLOR_BLACK +  SET_TEXT_COLOR_WHITE + " Enter a Response: ");
+            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK + "[LOGGED IN]" + SET_BG_COLOR_BLACK +
+                    SET_TEXT_COLOR_WHITE + " Enter a Response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
             if (Objects.equals(output, "quit")) {

@@ -8,10 +8,10 @@ import static ui.EscapeSequences.*;
 
 public class PreloginREPL {
 
-    private final String serverURL;
+    private final String serverUrl;
     public PreloginREPL(String URL, ChessClient client){
         this.client = client;
-        serverURL = URL;
+        serverUrl = URL;
     }
     private final ChessClient client;
     public static boolean isLoggedIn = false;
@@ -23,9 +23,10 @@ public class PreloginREPL {
         System.out.println(client.help());
         while (running) {
             if (isLoggedIn) {
-                new PostloginREPL(serverURL, client).run();
+                new PostloginREPL(serverUrl, client).run();
             }
-            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_LIGHT_GREY + "[LOGGED OUT]" + SET_BG_COLOR_BLACK +  SET_TEXT_COLOR_WHITE + " Enter a Response: ");
+            System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_LIGHT_GREY + "[LOGGED OUT]" +
+                    SET_BG_COLOR_BLACK +  SET_TEXT_COLOR_WHITE + " Enter a Response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
             if (Objects.equals(output, "quit")) {

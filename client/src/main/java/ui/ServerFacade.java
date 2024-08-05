@@ -105,7 +105,8 @@ public class ServerFacade {
         }
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass)
+            throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
         URL url = (new URI(serverURL + path)).toURL();
         HttpURLConnection http = (HttpURLConnection) url.openConnection();
         http.setRequestMethod(method);
