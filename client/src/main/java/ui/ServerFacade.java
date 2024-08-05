@@ -43,26 +43,62 @@ public class ServerFacade {
         }
     }
 
-    public void logout() throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
-        var path = "/session";
-        makeRequest("DELETE", path, null, null);
+    public void logout() throws Exception {
+        try {
+            var path = "/session";
+            makeRequest("DELETE", path, null, null);
+        } catch (DataAccessException e) {
+            throw new Exception("Error: unauthorized.");
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public Collection<GameData> listGames() throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
-        var path = "/game";
-        return makeRequest("GET", path, null, ListGamesResponse.class).games();
+    public Collection<GameData> listGames() throws Exception {
+
+        try {
+            var path = "/game";
+            return makeRequest("GET", path, null, ListGamesResponse.class).games();
+        } catch (DataAccessException e) {
+            throw new Exception("Error: unauthorized.");
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public CreateGameResponse createGame(String name) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
-        var path = "/game";
-        CreateGameRequest request = new CreateGameRequest(name);
-        return makeRequest("POST", path, request, CreateGameResponse.class);
+    public CreateGameResponse createGame(String name) throws Exception {
+        try {
+            var path = "/game";
+            CreateGameRequest request = new CreateGameRequest(name);
+            return makeRequest("POST", path, request, CreateGameResponse.class);
+        } catch (IllegalAccessException e) {
+            throw new Exception("Error: bad request.");
+        }
+        catch (DataAccessException e) {
+            throw new Exception("Error: unauthorized.");
+        }
+        catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
-    public void joinGame(Integer gameID, TeamColor color) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
-        var path = "/game";
-        JoinGameRequest request = new JoinGameRequest(color, gameID);
-        makeRequest("PUT", path, request, null);
+    public void joinGame(Integer gameID, TeamColor color) throws Exception {
+        try {
+            var path = "/game";
+            JoinGameRequest request = new JoinGameRequest(color, gameID);
+            makeRequest("PUT", path, request, null);
+        } catch (IllegalAccessException e) {
+            throw new Exception("Error: bad request.");
+        }
+        catch (DataAccessException e) {
+            throw new Exception("Error: unauthorized.");
+        }
+        catch (IllegalArgumentException e) {
+            throw new Exception("Error: already taken");
+        }
+        catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {

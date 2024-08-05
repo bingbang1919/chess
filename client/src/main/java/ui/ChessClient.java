@@ -113,7 +113,7 @@ public class ChessClient {
         return new Gson().toJson(authentication);
     }
 
-    public String logout() throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+    public String logout() throws Exception {
         // TODO: need to tell them that they used the wrong password.
         facade.logout();
         authToken = null;
@@ -121,7 +121,7 @@ public class ChessClient {
         return "Logged out";
     }
 
-    public String createGame(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+    public String createGame(String ... params) throws Exception {
         String name = params[0];
         if (params.length == 1) {
             CreateGameResponse game = facade.createGame(name);
@@ -132,7 +132,7 @@ public class ChessClient {
         }
     }
 
-    public String listGames() throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+    public String listGames() throws Exception {
         Map<Integer, Integer> gameMap = new HashMap<>();
         ArrayList<GameData> games = (ArrayList<GameData>) facade.listGames();
         String returnString = "";
@@ -148,7 +148,7 @@ public class ChessClient {
         return returnString;
     }
 
-    public String playGame(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+    public String playGame(String ... params) throws Exception {
         // TODO: make case for wrong number of arguments
         if (isInteger(params[0])){
             Integer gameID = Integer.valueOf(params[0]);
