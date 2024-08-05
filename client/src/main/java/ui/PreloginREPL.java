@@ -9,9 +9,9 @@ import static ui.EscapeSequences.*;
 public class PreloginREPL {
 
     private final String serverUrl;
-    public PreloginREPL(String URL, ChessClient client){
+    public PreloginREPL(String url, ChessClient client){
         this.client = client;
-        serverUrl = URL;
+        serverUrl = url;
     }
     private final ChessClient client;
     public static boolean isLoggedIn = false;
