@@ -19,6 +19,11 @@ public class ServerFacade {
         client = c;
     }
 
+    public void clear() throws Exception {
+        var path = "/db";
+        makeRequest("DELETE", path, null, null);
+    }
+
     public AuthData register(UserData user) throws Exception {
         try {
             var path = "/user";

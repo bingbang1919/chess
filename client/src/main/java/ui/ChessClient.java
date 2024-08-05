@@ -13,6 +13,10 @@ import java.util.*;
 
 public class ChessClient {
 
+    public ServerFacade getFacade() {
+        return facade;
+    }
+
     private final ServerFacade facade;
     public String authToken = null;
     public Map<Integer, Integer> registeredGames = null;
