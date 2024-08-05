@@ -32,9 +32,15 @@ public class ServerFacade {
         }
     }
 
-    public AuthData login(LoginRequest request) throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {
-        var path = "/session";
-        return makeRequest("POST", path, request, AuthData.class);
+    public AuthData login(LoginRequest request) throws Exception {
+        try {
+            var path = "/session";
+            return makeRequest("POST", path, request, AuthData.class);
+        } catch (DataAccessException e) {
+            throw new Exception("Error: unauthorized.");
+        } catch (RuntimeException e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     public void logout() throws IllegalAccessException, IOException, DataAccessException, URISyntaxException {

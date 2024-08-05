@@ -84,7 +84,7 @@ public class ChessClient {
         return "quit";
     }
 
-    public String login(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+    public String login(String ... params) throws Exception {
         AuthData authentication;
         if (params.length == 2) {
             String username = params[0];
@@ -114,6 +114,7 @@ public class ChessClient {
     }
 
     public String logout() throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+        // TODO: need to tell them that they used the wrong password.
         facade.logout();
         authToken = null;
         PreloginREPL.isLoggedIn = false;
@@ -148,6 +149,7 @@ public class ChessClient {
     }
 
     public String playGame(String ... params) throws IllegalAccessException, IOException, URISyntaxException, DataAccessException {
+        // TODO: make case for wrong number of arguments
         if (isInteger(params[0])){
             Integer gameID = Integer.valueOf(params[0]);
             TeamColor color = switch (params[1]) {
@@ -164,6 +166,7 @@ public class ChessClient {
     }
 
     public String observeGame(String ... params) {
+        // TODO: make case for wrong number of arguments
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
             return "Observing game #" + gameID;
