@@ -22,9 +22,9 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        client = new ChessClient("http://localhost:8080/");
+        client = new ChessClient("http://localhost:" + port + '/');
         facade = client.getFacade();
     }
 
