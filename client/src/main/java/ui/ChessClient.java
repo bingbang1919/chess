@@ -134,6 +134,9 @@ public class ChessClient {
         Map<Integer, Integer> gameMap = new HashMap<>();
         ArrayList<GameData> games = (ArrayList<GameData>) facade.listGames();
         String returnString = "";
+        if (games.isEmpty()) {
+            return "There are no games available.";
+        }
         for (int i=0; i<games.size(); i++) {
             GameData game;
             game = games.get(i);
