@@ -1,20 +1,23 @@
 package server;
 
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+
 public class WebSocketService {
 
-    public void connect() {
+    public LoadGameMessage connect() {
+        // TODO: needs to grab the game from the database, and
+    }
+
+    public LoadGameMessage makeMove() {
 
     }
 
-    public void makeMove() {
+    public NotificationMessage resign() {
 
     }
 
-    public void resign() {
-
-    }
-
-    public void leave() {
+    public NotificationMessage leave() {
 
     }
 }

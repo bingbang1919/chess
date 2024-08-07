@@ -14,7 +14,7 @@ public class Server {
     private DataAccessObjects.GameDAO gameDao;
     private DataAccessObjects.UserDAO userDao;
     private int gameCounter = 1;
-    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler(userDao, gameDao, authDao);
     public Server() {
         try {
             userDao = SequelUserDAO.getInstance();
