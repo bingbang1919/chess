@@ -6,7 +6,6 @@ import model.*;
 import service.*;
 import service.Service;
 import spark.*;
-
 import java.util.Collection;
 
 public class Server {
@@ -15,7 +14,7 @@ public class Server {
     private DataAccessObjects.GameDAO gameDao;
     private DataAccessObjects.UserDAO userDao;
     private int gameCounter = 1;
-
+    private final WebSocketHandler webSocketHandler = new WebSocketHandler();
     public Server() {
         try {
             userDao = SequelUserDAO.getInstance();
@@ -29,8 +28,10 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
+        Spark.webSocket("/ws", webSocketHandler);
         Spark.staticFiles.location("web");
         Spark.init();
+
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
@@ -39,6 +40,7 @@ public class Server {
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.awaitInitialization();
+
         return Spark.port();
     }
 
