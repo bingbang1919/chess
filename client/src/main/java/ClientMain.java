@@ -11,8 +11,10 @@ public class ClientMain {
 //            serverUrl = args[0];
 //        }
 //        new PreloginREPL(serverUrl, new ChessClient(serverUrl)).run();
-        new NewerGameplayREPL().run(new ChessBoard(), true);
-        new NewerGameplayREPL().run(new ChessBoard(), false);
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+        new NewerGameplayREPL().run(board, true);
+        new NewerGameplayREPL().run(board, false);
     }
 
 }
