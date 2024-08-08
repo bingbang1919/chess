@@ -42,10 +42,10 @@ public class WebSocketHandler {
         }
     }
 
-    @OnWebSocketError
-    public void onError(Session session, Throwable e) {
-        System.out.println(e.getMessage());
-    }
+//    @OnWebSocketError
+//    public void onError(Session session, Throwable e) {
+//        System.out.println(e.getMessage());
+//    }
 
     @OnWebSocketClose
     public void onClose(Session session, int status, String reason) {
@@ -63,7 +63,14 @@ public class WebSocketHandler {
         }
     }
     private void makeMove(Session session, MakeMoveCommand command) throws Exception {
-        session.getRemote().sendString(new Gson().toJson(command));
+        try {
+            WebSocketService service = new WebSocketService();
+            LoadGameMessage message = service.makeMove(command, gameDao, authDao);
+            session.getRemote().sendString(new Gson().toJson(message));
+        } catch (Exception e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
+            session.getRemote().sendString(new Gson().toJson(message));
+        }
     }
     private void leave(Session session, LeaveCommand command) throws Exception {
         session.getRemote().sendString(new Gson().toJson(command));
