@@ -73,10 +73,25 @@ public class WebSocketHandler {
         }
     }
     private void leave(Session session, LeaveCommand command) throws Exception {
-        session.getRemote().sendString(new Gson().toJson(command));
+        try {
+            WebSocketService service = new WebSocketService();
+            NotificationMessage message = service.leave(command, gameDao, authDao);
+            session.getRemote().sendString(new Gson().toJson(message));
+        } catch (Exception e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
+            session.getRemote().sendString(new Gson().toJson(message));
+        }
     }
+
     private void resign(Session session, ResignCommand command) throws Exception {
-        session.getRemote().sendString(new Gson().toJson(command));
+        try {
+            WebSocketService service = new WebSocketService();
+            NotificationMessage message = service.resign(command, gameDao, authDao);
+            session.getRemote().sendString(new Gson().toJson(message));
+        } catch (Exception e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
+            session.getRemote().sendString(new Gson().toJson(message));
+        }
     }
 
 }

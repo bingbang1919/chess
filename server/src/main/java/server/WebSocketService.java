@@ -7,6 +7,7 @@ import dataaccess.DataAccessObjects;
 import model.AuthData;
 import model.GameData;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.ResignCommand;
 import websocket.messages.LoadGameMessage;
@@ -44,14 +45,20 @@ public class WebSocketService {
     public LoadGameMessage makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, InvalidMoveException {
         // TODO: update the board
         String authToken = command.getAuthToken();
-        int gameID = command.getGameID();
         try {
             authDao.getAuth(authToken);
         } catch (DataAccessException e) {
             throw new DataAccessException("Illegal access");
         }
-        ChessGame game = gameDao.getGame(gameID).game();
+        int gameID = command.getGameID();
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+        String gamename = gameData.gameName();
+        String blackUser = gameData.blackUsername();
+        String whiteUser = gameData.whiteUsername();
         game.makeMove(command.getMove());
+        gameDao.removeGame(gameID);
+        gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     }
 
@@ -64,7 +71,32 @@ public class WebSocketService {
     public NotificationMessage resign(ResignCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         // TODO: Develop a way to mark the game as over? Update the game.
         String authToken = command.getAuthToken();
+        String username;
+        try {
+            username = authDao.getAuth(authToken).username();
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Illegal access");
+        }
+        int gameID = command.getGameID();
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+        String gamename = gameData.gameName();
+        String blackUser = gameData.blackUsername();
+        String whiteUser = gameData.whiteUsername();
+        gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
+        gameDao.removeGame(gameID);
+        gameDao.addGame(gameData);
+        return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, username + " resigned from " + gamename);
+    }
 
+    /**
+     Root Client sends LEAVE
+         1. If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
+         2. Server sends a Notification message to all other clients in that game,
+         informing them that the root client left. This applies to both players and observers.
+     */
+    public NotificationMessage leave(LeaveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
+        String authToken = command.getAuthToken();
         String username;
         try {
             username = authDao.getAuth(authToken).username();
@@ -85,17 +117,6 @@ public class WebSocketService {
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
         gameDao.removeGame(gameID);
         gameDao.addGame(gameData);
-        return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, username + " resigned from " + gamename);
-    }
-
-    /**
-     Root Client sends LEAVE
-         1. If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
-         2. Server sends a Notification message to all other clients in that game,
-         informing them that the root client left. This applies to both players and observers.
-     */
-    public NotificationMessage leave(ConnectCommand command) {
-        // TODO: need to grab the game, remove the user from it's respective color, then update the game.
-        throw new RuntimeException("Not yet implemented");
+        return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, username + " left " + gamename);
     }
 }
