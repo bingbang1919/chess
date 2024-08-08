@@ -60,9 +60,7 @@ public class WebSocketHandler {
             Integer gameID = command.getGameID();
 
             // Checks if the game already has a set to its game id, adds the session.
-            if (!connections.containsKey(gameID)) {
-                connections.put(gameID, new HashSet<>());
-            }
+            if (!connections.containsKey(gameID)) {connections.put(gameID, new HashSet<>());}
             connections.get(gameID).add(session);
             notifyAll(gameID, message, session);
         } catch (Exception e) {
@@ -104,12 +102,9 @@ public class WebSocketHandler {
 
     private void notifyAll(Integer gameID, ServerMessage message, Session excludedSession) throws IOException {
         HashSet<Session> sessions = connections.get(gameID);
-        Session[] sessionArray = (Session[]) sessions.toArray();
+        Session[] sessionArray = sessions.toArray(new Session[0]);
         for (Session session : sessionArray) {
-            if (!session.equals(excludedSession)) {
-                session.getRemote().sendString(new Gson().toJson(message));
-            }
+            if (!session.equals(excludedSession)) {session.getRemote().sendString(new Gson().toJson(message));}
         }
     }
-
 }
