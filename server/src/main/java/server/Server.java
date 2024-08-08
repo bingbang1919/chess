@@ -14,13 +14,14 @@ public class Server {
     private DataAccessObjects.GameDAO gameDao;
     private DataAccessObjects.UserDAO userDao;
     private int gameCounter = 1;
-    private final WebSocketHandler webSocketHandler = new WebSocketHandler(userDao, gameDao, authDao);
+    private WebSocketHandler webSocketHandler;
     public Server() {
         try {
             userDao = SequelUserDAO.getInstance();
             gameDao = SequelGameDAO.getInstance();
             authDao = SequelAuthDAO.getInstance();
             DatabaseManager.configureDatabase();
+            webSocketHandler = new WebSocketHandler(userDao, gameDao, authDao);
         } catch (Exception e) {
             System.out.println("Something went terribly wrong");
         }

@@ -1,8 +1,12 @@
 package server;
 
+import chess.ChessGame;
+import dataaccess.DataAccessException;
+import dataaccess.DataAccessObjects;
 import websocket.commands.ConnectCommand;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 public class WebSocketService {
     /**
@@ -11,9 +15,17 @@ public class WebSocketService {
          2.  Server sends a Notification message to all other clients in that game informing them that the root client
             connected to the game, either as a player (in which case their color must be specified) or as an observer.
      */
-    public LoadGameMessage connect(ConnectCommand command) {
+    public LoadGameMessage connect(ConnectCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         // TODO: needs to grab the game from the database, and return the game.
-
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+        try {
+            authDao.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Illegal access");
+        }
+        ChessGame game = gameDao.getGame(gameID).game();
+        return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     }
 
     /**
@@ -26,6 +38,7 @@ public class WebSocketService {
      */
     public LoadGameMessage makeMove(ConnectCommand command) {
         // TODO: needs to get the game from the database, execute the makeMove function, then return the LoadGameMessage
+        throw new RuntimeException("Not yet implemented");
     }
 
     /**
@@ -36,6 +49,7 @@ public class WebSocketService {
      */
     public NotificationMessage resign(ConnectCommand command) {
         // TODO: need to grab the game, remove the user from it's respective color, then update the game.
+        throw new RuntimeException("Not yet implemented");
     }
 
     /**
@@ -46,5 +60,6 @@ public class WebSocketService {
      */
     public NotificationMessage leave(ConnectCommand command) {
         // TODO: Develop a way to mark the game as over? Update the game.
+        throw new RuntimeException("Not yet implemented");
     }
 }

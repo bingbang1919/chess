@@ -55,7 +55,8 @@ public class WebSocketHandler {
     private void connect(Session session, ConnectCommand command) throws Exception {
         try {
             WebSocketService service = new WebSocketService();
-            LoadGameMessage message = service.connect(command);
+            LoadGameMessage message = service.connect(command, gameDao, authDao);
+            session.getRemote().sendString(new Gson().toJson(message));
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
