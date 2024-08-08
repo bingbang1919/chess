@@ -13,6 +13,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -22,7 +23,7 @@ public class WebSocketHandler {
     private DataAccessObjects.UserDAO userDao;
     private DataAccessObjects.GameDAO gameDao;
     private DataAccessObjects.AuthDAO authDao;
-    private final HashMap<Integer, Set<Session>> connections = new HashMap<>();
+    private final HashMap<Integer, HashSet<Session>> connections = new HashMap<>();
 
     public WebSocketHandler(DataAccessObjects.UserDAO userDao, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) {
         this.authDao = authDao;
@@ -56,7 +57,14 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             LoadGameMessage message = service.connect(command, gameDao, authDao);
-            session.getRemote().sendString(new Gson().toJson(message));
+            Integer gameID = command.getGameID();
+
+            // Checks if the game already has a set to its game id, adds the session.
+            if (!connections.containsKey(gameID)) {
+                connections.put(gameID, new HashSet<>());
+            }
+            connections.get(gameID).add(session);
+            notifyAll(gameID, message, session);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
@@ -66,7 +74,7 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             LoadGameMessage message = service.makeMove(command, gameDao, authDao);
-            session.getRemote().sendString(new Gson().toJson(message));
+            notifyAll(command.getGameID(), message, session);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
@@ -76,7 +84,7 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             NotificationMessage message = service.leave(command, gameDao, authDao);
-            session.getRemote().sendString(new Gson().toJson(message));
+            notifyAll(command.getGameID(), message, session);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
@@ -87,10 +95,20 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             NotificationMessage message = service.resign(command, gameDao, authDao);
-            session.getRemote().sendString(new Gson().toJson(message));
+            notifyAll(command.getGameID(), message, null);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
+        }
+    }
+
+    private void notifyAll(Integer gameID, ServerMessage message, Session excludedSession) throws IOException {
+        HashSet<Session> sessions = connections.get(gameID);
+        Session[] sessionArray = (Session[]) sessions.toArray();
+        for (Session session : sessionArray) {
+            if (!session.equals(excludedSession)) {
+                session.getRemote().sendString(new Gson().toJson(message));
+            }
         }
     }
 

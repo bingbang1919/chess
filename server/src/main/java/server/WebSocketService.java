@@ -53,6 +53,22 @@ public class WebSocketService {
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
+        if (game.isFinished) {
+            String message;
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                message = "White is in checkmate.";
+            }
+            else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                message = "Black is in checkmate";
+            }
+            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                message = "Stalemate";
+            }
+            else {
+                message = "For some reason the game was marked as finished but not in stale/checkmate";
+            }
+            throw new InvalidMoveException("This game is finished: " + message);
+        }
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();

@@ -11,6 +11,8 @@ import java.util.Collection;
  */
 public class ChessGame {
 
+    public boolean isFinished = false;
+
     private TeamColor teamTurn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
 
@@ -166,7 +168,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return gameStatusHelper(teamColor) && isInCheck(teamColor);
+        if (gameStatusHelper(teamColor) && isInCheck(teamColor)) {
+            isFinished = true;
+            return true;
+        }
+        return false;
     }
     /**
      * Determines if the given team is in stalemate, which here is defined as having
@@ -176,7 +182,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        return !isInCheck(teamColor) && gameStatusHelper(teamColor);
+        if (gameStatusHelper(teamColor) && !isInCheck(teamColor)) {
+            isFinished = true;
+            return true;
+        }
+        return false;
     }
     /**
      * Sets this game's chessboard with a given board
