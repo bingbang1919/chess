@@ -7,14 +7,18 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 public class GameplayREPL {
     private final int CHESS_BOARD_SIZE = 8;
+    private boolean isRunning;
 
-    public void run(ChessBoard board, boolean whiteView) {
-        drawBoard(board, whiteView);
+    public void run() {
+        Scanner scanner = new Scanner(System.in);
+        help();
+        System.out.println("[IN-GAME] Enter a response: ");
     }
 
     private void drawBoard(ChessBoard board, boolean whiteView) {
@@ -101,5 +105,17 @@ public class GameplayREPL {
         }
         out.print(character);
         out.print(SET_TEXT_COLOR_WHITE);
+    }
+
+    private void help() {
+        String info = """
+                 * help - Displays possible actions
+                 * redraw - Redraws the chess board
+                 * leave - leave game
+                 * move <Start> <End> - moves the piece from one valid space to another. Format: LetterNumber (i.e. b3)
+                 * resign - resign game (ends the game)
+                 * highlight <position> - highlights possible moves for a valid piece in that position.
+                """;
+        System.out.println(info);
     }
 }

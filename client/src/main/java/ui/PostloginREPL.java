@@ -22,7 +22,7 @@ public class PostloginREPL {
             String response = scanner.nextLine();
             String output = client.eval(response);
             if (Objects.equals(output, "quit")) {
-                System.out.println("Thank you for a-playing my game!");
+                System.out.println("Thank you so much for a-playing my game!");
                 System.exit(0);
             }
             System.out.println(output);
