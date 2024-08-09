@@ -1,5 +1,6 @@
 package server;
 
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessObjects;
 import org.eclipse.jetty.websocket.api.Session;
@@ -37,7 +38,7 @@ public class WebSocketHandler {
         Gson gson = new Gson();
         switch (gson.fromJson(message, UserGameCommand.class).getCommandType()) {
             case CONNECT -> connect(session, gson.fromJson(message, ConnectCommand.class));
-            case MAKE_MOVE -> makeMove(session, new Gson().fromJson(message, MakeMoveCommand.class));
+            case MAKE_MOVE -> makeMove(session, gson.fromJson(message, MakeMoveCommand.class));
             case LEAVE -> leave(session, gson.fromJson(message, LeaveCommand.class));
             case RESIGN -> resign(session, gson.fromJson(message, ResignCommand.class));
         }
@@ -58,7 +59,6 @@ public class WebSocketHandler {
             WebSocketService service = new WebSocketService();
             LoadGameMessage message = service.connect(command, gameDao, authDao);
             Integer gameID = command.getGameID();
-
             // Checks if the game already has a set to its game id, adds the session.
             if (!connections.containsKey(gameID)) {connections.put(gameID, new HashSet<>());}
             connections.get(gameID).add(session);
@@ -73,7 +73,11 @@ public class WebSocketHandler {
             WebSocketService service = new WebSocketService();
             LoadGameMessage message = service.makeMove(command, gameDao, authDao);
             notifyAll(command.getGameID(), message, session);
-        } catch (Exception e) {
+        } catch (InvalidMoveException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Move Error: " + e.getMessage());
+            session.getRemote().sendString(new Gson().toJson(message));
+        }
+        catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
         }

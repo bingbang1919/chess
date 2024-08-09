@@ -1,34 +1,47 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.ResignCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.net.URI;
 import java.util.Arrays;
 
-public class WebSocketClient {
+public class WebSocketClient extends Endpoint {
 
     private final Session session;
-    private String authtoken = null;
+    public String authtoken = null;
+    public ChessBoard board;
     public Integer gameID;
     public WebSocketClient(String url) throws Exception {
         URI uri = new URI("ws://localhost:7389/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
-
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-            /**
-             * @param message Takes in a serialized Json message from the server. This function should parse the message and execute the logic that's needed.
-             */
             public void onMessage(String message) {
-                System.out.println(message);
+                try {
+                    Gson gson = new Gson();
+                    ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case NOTIFICATION -> gson.fromJson(message, NotificationMessage.class);
+                        case ERROR -> gson.fromJson(message, ErrorMessage.class);
+                        case LOAD_GAME -> gson.fromJson(message, LoadGameMessage.class);
+                    }
+                } catch (JsonSyntaxException e) {
+                    System.out.println(message);
+                }
             }
         });
     }
@@ -56,7 +69,13 @@ public class WebSocketClient {
             return switch (cmd) {
                 case "redraw" -> redrawBoard();
                 case "leave" -> leave();
-                case "move" -> makeMove();
+                case "move" -> {
+                    String promotion = null;
+                    if (params.length == 3) {
+                        promotion = params[2];
+                    }
+                    yield makeMove(params[0], params[1], promotion);
+                }
                 case "resign" -> resign();
                 case "highlight" -> highlightLegalMoves();
                 default -> throw new IllegalStateException("Unexpected value: " + cmd);
@@ -146,19 +165,9 @@ public class WebSocketClient {
         }
     }
 
-    public boolean isStringInt(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
-    }
-
     /**
      * Removes the user from the game (whether they are playing or observing the game). The client transitions back to the Post-Login UI.
      *
-     * @return
      */
     private String leave() throws Exception {
         try {
@@ -176,5 +185,4 @@ public class WebSocketClient {
     private String redrawBoard() {
         throw new RuntimeException("Not yet implemented.");
     }
-
 }
