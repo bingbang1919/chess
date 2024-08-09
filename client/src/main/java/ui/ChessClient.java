@@ -93,6 +93,7 @@ public class ChessClient {
             LoginRequest request = new LoginRequest(username, password);
             authentication = facade.login(request);
             authToken = authentication.authToken();
+            wbClient.authtoken = authToken;
         } else {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
@@ -108,6 +109,7 @@ public class ChessClient {
             UserData request = new UserData(username, password, email);
             authentication = facade.register(request);
             authToken = authentication.authToken();
+            wbClient.authtoken = authToken;
         } else {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
@@ -117,6 +119,7 @@ public class ChessClient {
     public String logout() throws Exception {
         facade.logout();
         authToken = null;
+        wbClient.authtoken = null;
         PreloginREPL.isLoggedIn = false;
         return "Logged out";
     }

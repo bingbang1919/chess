@@ -37,7 +37,6 @@ public class WebSocketService {
          5. If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
      */
     public LoadGameMessage makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, InvalidMoveException {
-        // TODO: See where to mark the thing as finished.
         String username = authenticate(command, authDao);
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
@@ -55,7 +54,7 @@ public class WebSocketService {
                 message = "Stalemate";}
             else {
                 message = "For some reason the game was marked as finished but not in stale/checkmate";}
-            throw new InvalidMoveException("This game is finished: " + message);}
+            throw new InvalidMoveException("Error, This game is finished: " + message);}
         game.makeMove(command.getMove());
         gameDao.removeGame(gameID);
         gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
@@ -69,7 +68,6 @@ public class WebSocketService {
          This applies to both players and observers.
      */
     public NotificationMessage resign(ResignCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
-        // TODO: Mark that the game is over.
         String username = authenticate(command, authDao);
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
@@ -98,7 +96,7 @@ public class WebSocketService {
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
-        if (gameData.blackUsername().equals(username)) {blackUser = null;}
+        if (gameData.blackUsername()==blackUser) {blackUser = null;}
         else {whiteUser = null;}
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
         gameDao.removeGame(gameID);
