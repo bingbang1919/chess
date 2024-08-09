@@ -20,7 +20,7 @@ public class ServerFacadeTests {
     private static ChessClient client;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws Exception {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);

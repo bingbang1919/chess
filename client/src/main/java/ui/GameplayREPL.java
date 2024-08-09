@@ -14,11 +14,19 @@ import static ui.EscapeSequences.*;
 public class GameplayREPL {
     private final int CHESS_BOARD_SIZE = 8;
     private boolean isRunning;
+    private final WebSocketClient client;
+
+    GameplayREPL(WebSocketClient client) {
+        isRunning = true;
+        this.client = client;
+    }
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
         help();
         System.out.println("[IN-GAME] Enter a response: ");
+        String response = scanner.nextLine();
+        String output = client.eval(response);
     }
 
     private void drawBoard(ChessBoard board, boolean whiteView) {

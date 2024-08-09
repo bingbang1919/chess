@@ -15,8 +15,10 @@ public class ChessClient {
     private final ServerFacade facade;
     public String authToken = null;
     public Map<Integer, Integer> registeredGames = null;
-    public ChessClient(String url) {
+    private final WebSocketClient wbClient;
+    public ChessClient(String url) throws Exception {
         facade = new ServerFacade(url, this);
+        wbClient = new WebSocketClient(url);
     }
 
     public String eval(String input) {
@@ -163,12 +165,14 @@ public class ChessClient {
                 case "white" -> TeamColor.WHITE;
                 default -> throw new IllegalStateException("Second argument must be a chess team color: <BLACK|WHITE>");
             };
+            wbClient.gameID = gameID;
             facade.joinGame(registeredGames.get(gameID), color);
         }
         else {
             throw new IllegalArgumentException("Game ID must be an integer.");
         }
-        new GameplayREPL().run();
+
+        new GameplayREPL(wbClient).run();
         return "Successfully joined game #" + params[0];
     }
 
@@ -178,7 +182,7 @@ public class ChessClient {
         }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
-            new GameplayREPL().run();
+            new GameplayREPL(wbClient).run();
             return "Observing game #" + gameID;
         }
         else {
