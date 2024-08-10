@@ -14,6 +14,7 @@ import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -23,7 +24,7 @@ public class WebSocketClient extends Endpoint {
     public String authtoken = null;
     public Integer gameID;
     private ChessGame game;
-    public WebSocketClient(String url) throws Exception {
+    public WebSocketClient() throws Exception {
         URI uri = new URI("ws://localhost:7389/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
@@ -45,15 +46,17 @@ public class WebSocketClient extends Endpoint {
                 Gson gson = new Gson();
                 LoadGameMessage loadGameMessage = gson.fromJson(message, LoadGameMessage.class);
                 game = loadGameMessage.getGame();
-                GameplayREPL.drawBoard(game.getBoard(), true);
+//                GameplayREPL.drawBoard(game.getBoard(), true, null);
             }
             private void handleNotification(String message) {
                 Gson gson = new Gson();
-                gson.fromJson(message, NotificationMessage.class);
+                NotificationMessage notification = gson.fromJson(message, NotificationMessage.class);
+                System.out.println(notification.getMessage());
             }
             private void handleError(String message) {
                 Gson gson = new Gson();
-                gson.fromJson(message, ErrorMessage.class);
+                ErrorMessage error = gson.fromJson(message, ErrorMessage.class);
+                System.out.println(error.getErrorMessage());
             }
         });
     }
@@ -89,7 +92,7 @@ public class WebSocketClient extends Endpoint {
                     yield makeMove(params[0], params[1], promotion);
                 }
                 case "resign" -> resign();
-                case "highlight" -> highlightLegalMoves();
+                case "highlight" -> highlightLegalMoves(params[0]);
                 case "help" -> help();
                 default -> throw new IllegalStateException("Unexpected value: " + cmd);
             };
@@ -116,8 +119,12 @@ public class WebSocketClient extends Endpoint {
      * The selected piece’s current square and all squares it can legally move to are highlighted.
      * This is a local operation and has no effect on remote users’ screens.
      */
-    public String highlightLegalMoves() {
-        throw new RuntimeException("Not yet implemented.");
+    public String highlightLegalMoves(String location) throws Exception {
+        ChessPosition position = parsePosition(location);
+        ChessPiece piece = game.getBoard().getPiece(position);
+        ArrayList<ChessMove> moves = (ArrayList<ChessMove>) piece.pieceMoves(game.getBoard(), position);
+        GameplayREPL.drawBoard(game.getBoard(), true, moves);
+        return "Highlighted";
     }
     /**
      * Prompts the user to confirm they want to resign. If they do, the user forfeits the game and the game is over.
@@ -145,7 +152,7 @@ public class WebSocketClient extends Endpoint {
         try {
             MakeMoveCommand msg = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authtoken, gameID, move);
             send(new Gson().toJson(msg));
-            return "MOVED";
+            return "";
         } catch (Exception e) {
             throw new Exception("Something went wrong with MAKEMOVE");
         }
@@ -181,7 +188,7 @@ public class WebSocketClient extends Endpoint {
                     case 'h' -> 8;
                     default -> throw new IllegalStateException("Unexpected column value: " + col);
                 };
-                int rowVal = Character.getNumericValue(row)+1;
+                int rowVal = Character.getNumericValue(row);
                 return new ChessPosition(rowVal, colVal);
             } else {
                 throw new Exception("Input the start and end positions as <LETTER><NUMBER>");
@@ -209,7 +216,7 @@ public class WebSocketClient extends Endpoint {
      * Redraws the chess board upon the user’s request.
      */
     public String redrawBoard() {
-        GameplayREPL.drawBoard(game.getBoard(), true);
+        GameplayREPL.drawBoard(game.getBoard(), true, null);
         return "";
     }
 }

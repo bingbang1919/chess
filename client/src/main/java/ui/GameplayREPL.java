@@ -1,12 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -15,8 +13,9 @@ import static ui.EscapeSequences.*;
 public class GameplayREPL {
     private static final int CHESS_BOARD_SIZE = 8;
     private final WebSocketClient client;
+    private static ArrayList<ChessPosition> highlightedSpots = new ArrayList<>();
 
-    GameplayREPL(WebSocketClient client) {
+    GameplayREPL(WebSocketClient client, ChessGame.TeamColor color) {
         this.client = client;
     }
 
@@ -27,15 +26,20 @@ public class GameplayREPL {
             System.out.print("[IN-GAME] Enter a response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
+            System.out.println(output);
             if (Objects.equals(output, "LEFT")) {
                 return;
             }
-            System.out.println(output);
         }
     }
 
-    public static void drawBoard(ChessBoard board, boolean whiteView) {
+    public void drawBoard(ChessBoard board, boolean whiteView, ArrayList<ChessMove> moves) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        if (moves != null) {
+            for (ChessMove move : moves) {
+                highlightedSpots.add(move.getEndPosition());
+            }
+        }
         String[] headers = { "   "," A ", " B ", " C ", " D ", " E ", " F ", " G ", " H ", "   " };
         String[] rowMarkers = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 " };
         out.println();
@@ -68,10 +72,10 @@ public class GameplayREPL {
             }
         }
         drawHeader(out, headers, whiteView);
-//        System.out.print(out);
+        highlightedSpots.clear();
     }
 
-    private static void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
+    private void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
         String[] columnMarkers = {"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
         out.print(SET_BG_COLOR_DARK_GREY);
         if (whiteView) {
@@ -88,18 +92,21 @@ public class GameplayREPL {
 
     }
 
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_BLACK);
-    }
-
-    private static void printPosition(PrintStream out, ChessBoard board, int row, int col) {
+    private void printPosition(PrintStream out, ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         String character = null;
         if ((row % 2 == 0 && col % 2 == 1) || (row % 2 == 1 && col % 2 == 0)) {
+            ChessPosition position = new ChessPosition(row, col);
             out.print(SET_BG_COLOR_LIGHT_GREY);
+            if (highlightedSpots != null && highlightedSpots.contains(position)) {
+                out.print(SET_BG_COLOR_GREEN);
+            }
         } else {
+            ChessPosition position = new ChessPosition(row, col);
             out.print(SET_BG_COLOR_BLACK);
+            if (highlightedSpots != null && highlightedSpots.contains(position)) {
+                out.print(SET_BG_COLOR_DARK_GREEN);
+            }
         }
         if (piece != null) {
             if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {

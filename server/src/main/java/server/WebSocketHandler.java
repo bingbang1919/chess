@@ -74,7 +74,9 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             LoadGameMessage message = service.makeMove(command, gameDao, authDao);
-            notifyAll(command.getGameID(), message, session);
+            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has moved.");
+            notifyAll(command.getGameID(), notificationMessage, session);
+            session.getRemote().sendString(new Gson().toJson(message));
         } catch (InvalidMoveException e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Move Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));

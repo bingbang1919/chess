@@ -19,10 +19,10 @@ public class ChessClient {
     private final ServerFacade facade;
     public String authToken = null;
     public Map<Integer, Integer> registeredGames = null;
-    private final WebSocketClient wbClient;
+    public final WebSocketClient wbClient;
     public ChessClient(String url) throws Exception {
         facade = new ServerFacade(url, this);
-        wbClient = new WebSocketClient(url);
+        wbClient = new WebSocketClient();
     }
 
     public String eval(String input) {
@@ -175,7 +175,7 @@ public class ChessClient {
             facade.joinGame(registeredGames.get(gameID), color);
             ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             wbClient.send(new Gson().toJson(command));
-            new GameplayREPL(wbClient).run();
+            new GameplayREPL(wbClient, color).run();
         } else {
             throw new IllegalArgumentException("Game ID must be an integer.");
         }
@@ -188,10 +188,9 @@ public class ChessClient {
         }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
-            new GameplayREPL(wbClient).run();
             ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             wbClient.send(new Gson().toJson(command));
-            new GameplayREPL(wbClient).run();
+            new GameplayREPL(wbClient, TeamColor.WHITE).run();
             return "Observing game #" + gameID;
         }
         else {
