@@ -96,7 +96,7 @@ public class WebSocketService {
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
-        if (gameData.blackUsername()==blackUser) {blackUser = null;}
+        if (gameData.blackUsername() == username) {blackUser = null;}
         else {whiteUser = null;}
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
         gameDao.removeGame(gameID);

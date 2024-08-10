@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import websocket.commands.LeaveCommand;
@@ -19,12 +16,13 @@ import javax.websocket.*;
 import java.net.URI;
 import java.util.Arrays;
 
+
 public class WebSocketClient extends Endpoint {
 
     private final Session session;
     public String authtoken = null;
-    public ChessBoard board;
     public Integer gameID;
+    private ChessGame game;
     public WebSocketClient(String url) throws Exception {
         URI uri = new URI("ws://localhost:7389/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -35,13 +33,27 @@ public class WebSocketClient extends Endpoint {
                     Gson gson = new Gson();
                     ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
                     switch (serverMessage.getServerMessageType()) {
-                        case NOTIFICATION -> gson.fromJson(message, NotificationMessage.class);
-                        case ERROR -> gson.fromJson(message, ErrorMessage.class);
-                        case LOAD_GAME -> gson.fromJson(message, LoadGameMessage.class);
+                        case NOTIFICATION -> handleNotification(message);
+                        case ERROR -> handleError(message);
+                        case LOAD_GAME -> handleLoadGame(message);
                     }
                 } catch (JsonSyntaxException e) {
                     System.out.println(message);
                 }
+            }
+            private void handleLoadGame(String message) {
+                Gson gson = new Gson();
+                LoadGameMessage loadGameMessage = gson.fromJson(message, LoadGameMessage.class);
+                game = loadGameMessage.getGame();
+                GameplayREPL.drawBoard(game.getBoard(), true);
+            }
+            private void handleNotification(String message) {
+                Gson gson = new Gson();
+                gson.fromJson(message, NotificationMessage.class);
+            }
+            private void handleError(String message) {
+                Gson gson = new Gson();
+                gson.fromJson(message, ErrorMessage.class);
             }
         });
     }
@@ -78,6 +90,7 @@ public class WebSocketClient extends Endpoint {
                 }
                 case "resign" -> resign();
                 case "highlight" -> highlightLegalMoves();
+                case "help" -> help();
                 default -> throw new IllegalStateException("Unexpected value: " + cmd);
             };
         } catch (Exception e) {
@@ -85,19 +98,32 @@ public class WebSocketClient extends Endpoint {
         }
     }
 
+    public String  help() {
+        String info = """
+                 * help - Displays possible actions
+                 * redraw - Redraws the chess board
+                 * leave - leave game
+                 * move <Start> <End> - moves the piece from one valid space to another. Format: LetterNumber (i.e. b3)
+                 * resign - resign game (ends the game)
+                 * highlight <position> - highlights possible moves for a valid piece in that position.
+                """;
+        return info;
+    }
+
+
     /**
      * Allows the user to input the piece for which they want to highlight legal moves.
      * The selected piece’s current square and all squares it can legally move to are highlighted.
      * This is a local operation and has no effect on remote users’ screens.
      */
-    private String highlightLegalMoves() {
+    public String highlightLegalMoves() {
         throw new RuntimeException("Not yet implemented.");
     }
     /**
      * Prompts the user to confirm they want to resign. If they do, the user forfeits the game and the game is over.
      * Does not cause the user to leave the game.
      */
-    private String resign() throws Exception {
+    public String resign() throws Exception {
         try {
             ResignCommand msg = new ResignCommand(UserGameCommand.CommandType.LEAVE, authtoken, gameID);
             send(new Gson().toJson(msg));
@@ -111,7 +137,7 @@ public class WebSocketClient extends Endpoint {
      * Allow the user to input what move they want to make. The board is updated to reflect the result of the move,
      * and the board automatically updates on all clients involved in the game.
      */
-    private String makeMove(String start, String end, String promotion) throws Exception {
+    public String makeMove(String start, String end, String promotion) throws Exception {
         ChessPosition startPosition = parsePosition(start);
         ChessPosition endPosition = parsePosition(end);
         ChessPiece.PieceType promotionPiece = getPromotionPiece(promotion);
@@ -169,7 +195,7 @@ public class WebSocketClient extends Endpoint {
      * Removes the user from the game (whether they are playing or observing the game). The client transitions back to the Post-Login UI.
      *
      */
-    private String leave() throws Exception {
+    public String leave() throws Exception {
         try {
             LeaveCommand msg = new LeaveCommand(UserGameCommand.CommandType.LEAVE, authtoken, gameID);
             send(new Gson().toJson(msg));
@@ -182,7 +208,8 @@ public class WebSocketClient extends Endpoint {
     /**
      * Redraws the chess board upon the user’s request.
      */
-    private String redrawBoard() {
-        throw new RuntimeException("Not yet implemented.");
+    public String redrawBoard() {
+        GameplayREPL.drawBoard(game.getBoard(), true);
+        return "";
     }
 }

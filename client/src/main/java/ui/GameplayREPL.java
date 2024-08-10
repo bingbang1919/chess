@@ -7,12 +7,13 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 public class GameplayREPL {
-    private final int CHESS_BOARD_SIZE = 8;
+    private static final int CHESS_BOARD_SIZE = 8;
     private final WebSocketClient client;
 
     GameplayREPL(WebSocketClient client) {
@@ -21,22 +22,23 @@ public class GameplayREPL {
 
     public void run() {
         Scanner scanner = new Scanner(System.in);
-        help();
+        System.out.print(client.help());
         while (true){
-            System.out.println("[IN-GAME] Enter a response: ");
+            System.out.print("[IN-GAME] Enter a response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
-            if (output=="LEFT") {
+            if (Objects.equals(output, "LEFT")) {
                 return;
             }
+            System.out.println(output);
         }
     }
 
-    private void drawBoard(ChessBoard board, boolean whiteView) {
+    public static void drawBoard(ChessBoard board, boolean whiteView) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         String[] headers = { "   "," A ", " B ", " C ", " D ", " E ", " F ", " G ", " H ", "   " };
-        drawHeader(out, headers, whiteView);
         String[] rowMarkers = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 " };
+        drawHeader(out, headers, whiteView);
         if (whiteView) {
             for (int i = CHESS_BOARD_SIZE-1; i >=0 ; i--) {
                 out.print(SET_BG_COLOR_DARK_GREY);
@@ -65,9 +67,10 @@ public class GameplayREPL {
             }
         }
         drawHeader(out, headers, whiteView);
+//        System.out.print(out);
     }
 
-    private void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
+    private static void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
         String[] columnMarkers = {"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
         out.print(SET_BG_COLOR_DARK_GREY);
         if (whiteView) {
@@ -89,7 +92,7 @@ public class GameplayREPL {
         out.print(SET_TEXT_COLOR_BLACK);
     }
 
-    private void printPosition(PrintStream out, ChessBoard board, int row, int col) {
+    private static void printPosition(PrintStream out, ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         String character = null;
         if ((row % 2 == 0 && col % 2 == 1) || (row % 2 == 1 && col % 2 == 0)) {
@@ -118,15 +121,4 @@ public class GameplayREPL {
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private void help() {
-        String info = """
-                 * help - Displays possible actions
-                 * redraw - Redraws the chess board
-                 * leave - leave game
-                 * move <Start> <End> - moves the piece from one valid space to another. Format: LetterNumber (i.e. b3)
-                 * resign - resign game (ends the game)
-                 * highlight <position> - highlights possible moves for a valid piece in that position.
-                """;
-        System.out.println(info);
-    }
 }

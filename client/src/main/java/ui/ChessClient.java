@@ -3,7 +3,11 @@ package ui;
 
 import chess.ChessGame.TeamColor;
 
+import com.google.gson.Gson;
 import model.*;
+import websocket.commands.ConnectCommand;
+import websocket.commands.UserGameCommand;
+
 import java.util.*;
 
 public class ChessClient {
@@ -129,8 +133,7 @@ public class ChessClient {
         if (params.length == 1) {
             facade.createGame(name);
             return "Created game.";
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
     }
@@ -170,21 +173,24 @@ public class ChessClient {
             };
             wbClient.gameID = gameID;
             facade.joinGame(registeredGames.get(gameID), color);
-        }
-        else {
+            ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            wbClient.send(new Gson().toJson(command));
+            new GameplayREPL(wbClient).run();
+        } else {
             throw new IllegalArgumentException("Game ID must be an integer.");
         }
-
-        new GameplayREPL(wbClient).run();
-        return "Successfully joined game #" + params[0];
+        return "";
     }
 
-    public String observeGame(String ... params) {
+    public String observeGame(String ... params) throws Exception {
         if (params.length != 1) {
             throw new IllegalArgumentException("Wrong number of arguments.");
         }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
+            new GameplayREPL(wbClient).run();
+            ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            wbClient.send(new Gson().toJson(command));
             new GameplayREPL(wbClient).run();
             return "Observing game #" + gameID;
         }

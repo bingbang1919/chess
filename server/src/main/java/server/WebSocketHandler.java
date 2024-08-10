@@ -62,7 +62,9 @@ public class WebSocketHandler {
             // Checks if the game already has a set to its game id, adds the session.
             if (!connections.containsKey(gameID)) {connections.put(gameID, new HashSet<>());}
             connections.get(gameID).add(session);
-            notifyAll(gameID, message, session);
+            session.getRemote().sendString(new Gson().toJson(message));
+            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has loaded into the game");
+            notifyAll(gameID, notificationMessage, session);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
