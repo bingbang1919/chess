@@ -11,13 +11,14 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    public boolean isFinished = false;
+    public boolean isFinished;
 
     private TeamColor teamTurn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
 
     public ChessGame() {
         board.resetBoard();
+        isFinished = false;
     }
     /**
      * @return Which team's turn it is

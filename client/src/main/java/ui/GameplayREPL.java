@@ -38,6 +38,7 @@ public class GameplayREPL {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         String[] headers = { "   "," A ", " B ", " C ", " D ", " E ", " F ", " G ", " H ", "   " };
         String[] rowMarkers = { " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 " };
+        out.println();
         drawHeader(out, headers, whiteView);
         if (whiteView) {
             for (int i = CHESS_BOARD_SIZE-1; i >=0 ; i--) {

@@ -2,6 +2,7 @@ package server;
 
 import chess.ChessGame;
 import chess.InvalidMoveException;
+import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessObjects;
 import model.AuthData;
@@ -37,7 +38,7 @@ public class WebSocketService {
          5. If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
      */
     public LoadGameMessage makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, InvalidMoveException {
-        String username = authenticate(command, authDao);
+        authenticate(command, authDao);
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
@@ -54,7 +55,8 @@ public class WebSocketService {
                 message = "Stalemate";}
             else {
                 message = "For some reason the game was marked as finished but not in stale/checkmate";}
-            throw new InvalidMoveException("Error, This game is finished: " + message);}
+            throw new InvalidMoveException("Error, This game is finished: " + message);
+        }
         game.makeMove(command.getMove());
         gameDao.removeGame(gameID);
         gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
@@ -90,15 +92,21 @@ public class WebSocketService {
      */
     public NotificationMessage leave(LeaveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         String username = authenticate(command, authDao);
+
+        System.out.println(username);
+
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
-        if (gameData.blackUsername() == username) {blackUser = null;}
-        else {whiteUser = null;}
+        if (blackUser != null && gameData.blackUsername().equals(username)) {blackUser = null;}
+        else if (whiteUser != null && gameData.whiteUsername().equals(username)) {whiteUser = null;}
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
+
+        System.out.print(new Gson().toJson(gameData));
+
         gameDao.removeGame(gameID);
         gameDao.addGame(gameData);
         return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, username + " left " + gamename);

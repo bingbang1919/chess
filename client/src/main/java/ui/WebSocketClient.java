@@ -125,7 +125,7 @@ public class WebSocketClient extends Endpoint {
      */
     public String resign() throws Exception {
         try {
-            ResignCommand msg = new ResignCommand(UserGameCommand.CommandType.LEAVE, authtoken, gameID);
+            ResignCommand msg = new ResignCommand(UserGameCommand.CommandType.RESIGN, authtoken, gameID);
             send(new Gson().toJson(msg));
             return "RESIGNED";
         } catch (Exception e) {
@@ -143,11 +143,11 @@ public class WebSocketClient extends Endpoint {
         ChessPiece.PieceType promotionPiece = getPromotionPiece(promotion);
         ChessMove move = new ChessMove(startPosition, endPosition, promotionPiece);
         try {
-            MakeMoveCommand msg = new MakeMoveCommand(UserGameCommand.CommandType.LEAVE, authtoken, gameID, move);
+            MakeMoveCommand msg = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authtoken, gameID, move);
             send(new Gson().toJson(msg));
-            return "LEFT";
+            return "MOVED";
         } catch (Exception e) {
-            throw new Exception("Something went wrong with LEAVE");
+            throw new Exception("Something went wrong with MAKEMOVE");
         }
     }
 
