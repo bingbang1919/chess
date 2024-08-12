@@ -114,7 +114,8 @@ public class WebSocketHandler {
         notifyAll(gameID, message, excludedSession, connections);
     }
 
-    static void notifyAll(Integer gameID, ServerMessage message, Session excludedSession, HashMap<Integer, HashSet<Session>> connections) throws IOException {
+    static void notifyAll(Integer gameID, ServerMessage message, Session excludedSession,
+                          HashMap<Integer, HashSet<Session>> connections) throws IOException {
         HashSet<Session> sessions = connections.get(gameID);
         Session[] sessionArray = sessions.toArray(new Session[0]);
         for (Session session : sessionArray) {
