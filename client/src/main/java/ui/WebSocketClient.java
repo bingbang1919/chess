@@ -122,6 +122,8 @@ public class WebSocketClient extends Endpoint {
         ChessPosition position = parsePosition(location);
         ChessPiece piece = game.getBoard().getPiece(position);
         ArrayList<ChessMove> moves = (ArrayList<ChessMove>) piece.pieceMoves(game.getBoard(), position);
+        ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) game.validMoves(position);
+        moves.removeIf(move -> !validMoves.contains(move));
         GameplayREPL.drawBoard(game.getBoard(), whiteView, moves);
         return "Highlighted";
     }

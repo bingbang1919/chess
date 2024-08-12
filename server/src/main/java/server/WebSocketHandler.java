@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessObjects;
@@ -68,14 +69,29 @@ public class WebSocketHandler {
     private void makeMove(Session session, MakeMoveCommand command) throws Exception {
         try {
             WebSocketService service = new WebSocketService();
-            Pair<LoadGameMessage, NotificationMessage> pair = service.makeMove(command, gameDao, authDao);
-            NotificationMessage notificationMessage = pair.getSecond();
-            LoadGameMessage message = pair.getFirst();
-            notifyAll(command.getGameID(), notificationMessage, session);
-            notifyAll(command.getGameID(), message, null);
-        } catch (InvalidMoveException e) {
-            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
-            session.getRemote().sendString(new Gson().toJson(message));
+            Pair<LoadGameMessage, NotificationMessage> pair = service.makeMove(command, gameDao, authDao, connections);
+            if (pair!=null) {
+                NotificationMessage notificationMessage = pair.getSecond();
+                LoadGameMessage message = pair.getFirst();
+                ChessGame game = message.getGame();
+                notifyAll(command.getGameID(), notificationMessage, session);
+                notifyAll(command.getGameID(), message, null);
+            }
+//            if (game.isFinished || game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)) {
+//                session = null;
+//                String piece = switch (game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType()) {
+//                    case PAWN -> "pawn";
+//                    case ROOK -> "rook";
+//                    case KNIGHT -> "knight";
+//                    case BISHOP -> "bishop";
+//                    case QUEEN -> "queen";
+//                    case KING -> "king";
+//                };
+//                String moveMessage = game.getBoard().getPiece(command.getMove().getEndPosition()).getTeamColor().toString()
+//                        + " moved their " + piece;
+//                notifyAll(command.getGameID(), new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveMessage), null);
+//            }
+
         } catch (RuntimeException e) {
             NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, e.getMessage());
             notifyAll(command.getGameID(), notificationMessage, null);
