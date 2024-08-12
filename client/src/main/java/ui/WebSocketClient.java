@@ -81,7 +81,6 @@ public class WebSocketClient extends Endpoint {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            // TODO: set the switch case to grab an output.
             return switch (cmd) {
                 case "redraw" -> redrawBoard();
                 case "leave" -> leave();
@@ -103,7 +102,7 @@ public class WebSocketClient extends Endpoint {
     }
 
     public String  help() {
-        String info = """
+        return """
                  * help - Displays possible actions
                  * redraw - Redraws the chess board
                  * leave - leave game
@@ -111,7 +110,6 @@ public class WebSocketClient extends Endpoint {
                  * resign - resign game (ends the game)
                  * highlight <position> - highlights possible moves for a valid piece in that position.
                 """;
-        return info;
     }
 
 

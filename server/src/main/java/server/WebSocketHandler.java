@@ -8,6 +8,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.glassfish.grizzly.utils.Pair;
 import websocket.commands.*;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
@@ -34,7 +35,6 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-//        System.out.println("received message: " + message);
         Gson gson = new Gson();
         switch (gson.fromJson(message, UserGameCommand.class).getCommandType()) {
             case CONNECT -> connect(session, gson.fromJson(message, ConnectCommand.class));
@@ -44,27 +44,23 @@ public class WebSocketHandler {
         }
     }
 
-//    @OnWebSocketError
-//    public void onError(Session session, Throwable e) {
-//        System.out.println(e.getMessage());
-//    }
-
     @OnWebSocketClose
     public void onClose(Session session, int status, String reason) {
-//        System.out.println("Status: " + status + ", Reason: " + reason);
     }
 
     private void connect(Session session, ConnectCommand command) throws Exception {
         try {
             WebSocketService service = new WebSocketService();
-            LoadGameMessage message = service.connect(command, gameDao, authDao);
+            Pair<LoadGameMessage, NotificationMessage> pair = service.connect(command, gameDao, authDao);
+            LoadGameMessage loadGameMessage = pair.getFirst();
+            NotificationMessage notification = pair.getSecond();
             Integer gameID = command.getGameID();
             // Checks if the game already has a set to its game id, adds the session.
             if (!connections.containsKey(gameID)) {connections.put(gameID, new HashSet<>());}
             connections.get(gameID).add(session);
-            session.getRemote().sendString(new Gson().toJson(message));
-            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has loaded into the game");
-            notifyAll(gameID, notificationMessage, session);
+            session.getRemote().sendString(new Gson().toJson(loadGameMessage));
+//            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has loaded into the game");
+            notifyAll(gameID, notification, session);
         } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
@@ -73,12 +69,13 @@ public class WebSocketHandler {
     private void makeMove(Session session, MakeMoveCommand command) throws Exception {
         try {
             WebSocketService service = new WebSocketService();
-            LoadGameMessage message = service.makeMove(command, gameDao, authDao);
-            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has moved.");
+            Pair<LoadGameMessage, NotificationMessage> pair = service.makeMove(command, gameDao, authDao);
+            NotificationMessage notificationMessage = pair.getSecond();
+            LoadGameMessage message = pair.getFirst();
             notifyAll(command.getGameID(), notificationMessage, session);
             notifyAll(command.getGameID(), message, null);
         } catch (InvalidMoveException e) {
-            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Move Error: " + e.getMessage());
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
         } catch (RuntimeException e) {
             NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, e.getMessage());
@@ -92,15 +89,8 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             NotificationMessage message = service.leave(command, gameDao, authDao);
-//            if (!message.getMessage().equals("THISOBSERVER")) {
             notifyAll(command.getGameID(), message, session);
             connections.get(command.getGameID()).remove(session);
-//            }
-//            else {
-//                message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Leaving game...");
-//                session.getRemote().sendString(new Gson().toJson(message));
-//            }
-//            notifyAll(command.getGameID(), message, session);
         } catch (Exception e) {
             System.out.print(e.getMessage());
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());

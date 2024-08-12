@@ -200,7 +200,7 @@ public class ChessClient {
             ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             wbClient.send(new Gson().toJson(command));
             new GameplayREPL(wbClient).run();
-            return "Observing game #" + gameID;
+            return "";
         }
         else {
             throw new IllegalArgumentException("Game ID must be an integer");

@@ -23,7 +23,7 @@ public class GameplayREPL {
         Scanner scanner = new Scanner(System.in);
         System.out.print(client.help());
         while (true){
-            System.out.print("[IN-GAME] Enter a response: ");
+            System.out.println("[IN-GAME] Enter a response: ");
             String response = scanner.nextLine();
             String output = client.eval(response);
             System.out.println(output);
