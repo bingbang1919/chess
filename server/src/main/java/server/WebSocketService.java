@@ -56,7 +56,8 @@ public class WebSocketService {
          5. If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
      */
     public Pair<LoadGameMessage, NotificationMessage> makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao,
-                                                               DataAccessObjects.AuthDAO authDao, HashMap<Integer, HashSet<Session>> connections, Session session)
+                                                               DataAccessObjects.AuthDAO authDao, HashMap<Integer,
+            HashSet<Session>> connections, Session session)
             throws DataAccessException, InvalidMoveException, IllegalAccessException, IOException {
         String username = authenticate(command, authDao);
         int gameID = command.getGameID();
@@ -204,11 +205,8 @@ public class WebSocketService {
         }
     }
 
-    private void notifyAll(Integer gameID, ServerMessage message, Session excludedSession, HashMap<Integer, HashSet<Session>> connections) throws IOException {
-        HashSet<Session> sessions = connections.get(gameID);
-        Session[] sessionArray = sessions.toArray(new Session[0]);
-        for (Session session : sessionArray) {
-            if (!session.equals(excludedSession)) {session.getRemote().sendString(new Gson().toJson(message));}
-        }
+    private void notifyAll(Integer gameID, ServerMessage message, Session excludedSession,
+                           HashMap<Integer, HashSet<Session>> connections) throws IOException {
+        WebSocketHandler.notifyAll(gameID, message, excludedSession, connections);
     }
 }

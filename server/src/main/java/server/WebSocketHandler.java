@@ -111,6 +111,10 @@ public class WebSocketHandler {
     }
 
     private void notifyAll(Integer gameID, ServerMessage message, Session excludedSession) throws IOException {
+        notifyAll(gameID, message, excludedSession, connections);
+    }
+
+    static void notifyAll(Integer gameID, ServerMessage message, Session excludedSession, HashMap<Integer, HashSet<Session>> connections) throws IOException {
         HashSet<Session> sessions = connections.get(gameID);
         Session[] sessionArray = sessions.toArray(new Session[0]);
         for (Session session : sessionArray) {
