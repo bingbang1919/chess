@@ -69,29 +69,15 @@ public class WebSocketHandler {
     private void makeMove(Session session, MakeMoveCommand command) throws Exception {
         try {
             WebSocketService service = new WebSocketService();
-            Pair<LoadGameMessage, NotificationMessage> pair = service.makeMove(command, gameDao, authDao, connections);
+            Pair<LoadGameMessage, NotificationMessage> pair = service.makeMove(command, gameDao, authDao, connections, session);
             if (pair!=null) {
                 NotificationMessage notificationMessage = pair.getSecond();
                 LoadGameMessage message = pair.getFirst();
-                ChessGame game = message.getGame();
-                notifyAll(command.getGameID(), notificationMessage, session);
+                if (notificationMessage != null) {
+                    notifyAll(command.getGameID(), notificationMessage, null);
+                }
                 notifyAll(command.getGameID(), message, null);
             }
-//            if (game.isFinished || game.isInCheck(ChessGame.TeamColor.WHITE) || game.isInCheck(ChessGame.TeamColor.BLACK)) {
-//                session = null;
-//                String piece = switch (game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType()) {
-//                    case PAWN -> "pawn";
-//                    case ROOK -> "rook";
-//                    case KNIGHT -> "knight";
-//                    case BISHOP -> "bishop";
-//                    case QUEEN -> "queen";
-//                    case KING -> "king";
-//                };
-//                String moveMessage = game.getBoard().getPiece(command.getMove().getEndPosition()).getTeamColor().toString()
-//                        + " moved their " + piece;
-//                notifyAll(command.getGameID(), new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveMessage), null);
-//            }
-
         } catch (RuntimeException e) {
             NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, e.getMessage());
             notifyAll(command.getGameID(), notificationMessage, null);

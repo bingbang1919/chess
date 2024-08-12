@@ -56,7 +56,7 @@ public class WebSocketService {
          5. If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
      */
     public Pair<LoadGameMessage, NotificationMessage> makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao,
-                                                               DataAccessObjects.AuthDAO authDao, HashMap<Integer, HashSet<Session>> connections)
+                                                               DataAccessObjects.AuthDAO authDao, HashMap<Integer, HashSet<Session>> connections, Session session)
             throws DataAccessException, InvalidMoveException, IllegalAccessException, IOException {
         String username = authenticate(command, authDao);
         int gameID = command.getGameID();
@@ -90,9 +90,13 @@ public class WebSocketService {
             throw new InvalidMoveException("That's not your piece");
         }
         game.makeMove(command.getMove());
-        LoadGameMessage loadGameMessage =  new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-        gameDao.removeGame(gameID);
-        gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
+        ChessGame.TeamColor teamTurn = game.getTeamTurn();
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK) ||
+                game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+            game.isFinished = true;
+        }
+        game.setTeamTurn(teamTurn);
+
         String piece = switch (game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType()) {
             case PAWN -> "pawn";
             case ROOK -> "rook";
@@ -103,7 +107,10 @@ public class WebSocketService {
         };
         String moveMessage = username + " moved their " + piece;
         NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveMessage);
-        notifyAll(gameID, notificationMessage, null, connections);
+        notifyAll(gameID, notificationMessage, session, connections);
+        LoadGameMessage loadGameMessage =  new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        gameDao.removeGame(gameID);
+        gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
         if (game.isFinished) {
             String message;
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
@@ -129,19 +136,7 @@ public class WebSocketService {
             return new Pair<>(loadGameMessage, new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                     "Black is in check"));
         }
-        return new Pair<>(loadGameMessage, notificationMessage);
-        // WARNING
-//        piece = switch (game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType()) {
-//            case PAWN -> "pawn";
-//            case ROOK -> "rook";
-//            case KNIGHT -> "knight";
-//            case BISHOP -> "bishop";
-//            case QUEEN -> "queen";
-//            case KING -> "king";
-//        };
-//        moveMessage = username + " moved their " + piece;
-//        notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveMessage);
-//        return new Pair<>(loadGameMessage, notificationMessage);
+        return new Pair<>(loadGameMessage, null);
     }
 
     /**
