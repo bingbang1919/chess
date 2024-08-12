@@ -13,7 +13,7 @@ import static ui.EscapeSequences.*;
 public class GameplayREPL {
     private static final int CHESS_BOARD_SIZE = 8;
     private final WebSocketClient client;
-    private static final ArrayList<ChessPosition> highlightedSpots = new ArrayList<>();
+    private static final ArrayList<ChessPosition> HIGHLIGHTED_SPOTS = new ArrayList<>();
 
     GameplayREPL(WebSocketClient client) {
         this.client = client;
@@ -37,7 +37,7 @@ public class GameplayREPL {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         if (moves != null) {
             for (ChessMove move : moves) {
-                highlightedSpots.add(move.getEndPosition());
+                HIGHLIGHTED_SPOTS.add(move.getEndPosition());
             }
         }
         String[] headers = { "   "," A ", " B ", " C ", " D ", " E ", " F ", " G ", " H ", "   " };
@@ -72,7 +72,7 @@ public class GameplayREPL {
             }
         }
         drawHeader(out, headers, whiteView);
-        highlightedSpots.clear();
+        HIGHLIGHTED_SPOTS.clear();
     }
 
     private static void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
@@ -98,13 +98,13 @@ public class GameplayREPL {
         if ((row % 2 == 0 && col % 2 == 1) || (row % 2 == 1 && col % 2 == 0)) {
             ChessPosition position = new ChessPosition(row, col);
             out.print(SET_BG_COLOR_LIGHT_GREY);
-            if (highlightedSpots != null && highlightedSpots.contains(position)) {
+            if (HIGHLIGHTED_SPOTS != null && HIGHLIGHTED_SPOTS.contains(position)) {
                 out.print(SET_BG_COLOR_GREEN);
             }
         } else {
             ChessPosition position = new ChessPosition(row, col);
             out.print(SET_BG_COLOR_BLACK);
-            if (highlightedSpots != null && highlightedSpots.contains(position)) {
+            if (HIGHLIGHTED_SPOTS != null && HIGHLIGHTED_SPOTS.contains(position)) {
                 out.print(SET_BG_COLOR_DARK_GREEN);
             }
         }
