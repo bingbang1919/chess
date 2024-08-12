@@ -24,6 +24,8 @@ public class WebSocketClient extends Endpoint {
     public String authtoken = null;
     public Integer gameID;
     private ChessGame game;
+    public boolean whiteView;
+    public boolean spectating=false;
     public WebSocketClient() throws Exception {
         URI uri = new URI("ws://localhost:7389/ws");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -46,7 +48,7 @@ public class WebSocketClient extends Endpoint {
                 Gson gson = new Gson();
                 LoadGameMessage loadGameMessage = gson.fromJson(message, LoadGameMessage.class);
                 game = loadGameMessage.getGame();
-//                GameplayREPL.drawBoard(game.getBoard(), true, null);
+                GameplayREPL.drawBoard(game.getBoard(), whiteView, null);
             }
             private void handleNotification(String message) {
                 Gson gson = new Gson();
@@ -73,7 +75,6 @@ public class WebSocketClient extends Endpoint {
 
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
-
 
     public String eval(String input) {
         try {
@@ -123,7 +124,7 @@ public class WebSocketClient extends Endpoint {
         ChessPosition position = parsePosition(location);
         ChessPiece piece = game.getBoard().getPiece(position);
         ArrayList<ChessMove> moves = (ArrayList<ChessMove>) piece.pieceMoves(game.getBoard(), position);
-        GameplayREPL.drawBoard(game.getBoard(), true, moves);
+        GameplayREPL.drawBoard(game.getBoard(), whiteView, moves);
         return "Highlighted";
     }
     /**
@@ -131,6 +132,9 @@ public class WebSocketClient extends Endpoint {
      * Does not cause the user to leave the game.
      */
     public String resign() throws Exception {
+        if (spectating) {
+            return "You are a spectator, you can't lose a game you ain't playing";
+        }
         try {
             ResignCommand msg = new ResignCommand(UserGameCommand.CommandType.RESIGN, authtoken, gameID);
             send(new Gson().toJson(msg));
@@ -145,6 +149,9 @@ public class WebSocketClient extends Endpoint {
      * and the board automatically updates on all clients involved in the game.
      */
     public String makeMove(String start, String end, String promotion) throws Exception {
+        if (spectating) {
+            return "You are a spectator, you can't make a move";
+        }
         ChessPosition startPosition = parsePosition(start);
         ChessPosition endPosition = parsePosition(end);
         ChessPiece.PieceType promotionPiece = getPromotionPiece(promotion);
@@ -216,7 +223,7 @@ public class WebSocketClient extends Endpoint {
      * Redraws the chess board upon the user’s request.
      */
     public String redrawBoard() {
-        GameplayREPL.drawBoard(game.getBoard(), true, null);
+        GameplayREPL.drawBoard(game.getBoard(), whiteView, null);
         return "";
     }
 }

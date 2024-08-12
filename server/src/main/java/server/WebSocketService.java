@@ -24,7 +24,7 @@ public class WebSocketService {
     public LoadGameMessage connect(ConnectCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         // TODO: needs to grab the game from the database, and return the game.
         int gameID = command.getGameID();
-        authenticate(command, authDao);
+        String username = authenticate(command, authDao);
         ChessGame game = gameDao.getGame(gameID).game();
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
     }
@@ -37,14 +37,17 @@ public class WebSocketService {
          4. Server sends a Notification message to all other clients in that game informing them what move was made.
          5. If the move results in check, checkmate or stalemate the server sends a Notification message to all clients.
      */
-    public LoadGameMessage makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, InvalidMoveException {
-        authenticate(command, authDao);
+    public LoadGameMessage makeMove(MakeMoveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, InvalidMoveException, IllegalAccessException {
+        String username = authenticate(command, authDao);
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
+        if (!username.equals(blackUser) && !username.equals(whiteUser)) {
+            throw new IllegalAccessException("An observer cannot make a move.");
+        }
         if (game.isFinished) {
             String message;
             if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
@@ -55,9 +58,29 @@ public class WebSocketService {
                 message = "Stalemate";}
             else {
                 message = "For some reason the game was marked as finished but not in stale/checkmate";}
-            throw new InvalidMoveException("Error, This game is finished: " + message);
+            throw new InvalidMoveException("This game is finished: " + message);
+        }
+        if (game.getBoard().getPiece(command.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK &&
+                !username.equals(blackUser)) {
+            throw new InvalidMoveException("That's not your piece");
+        }
+        if (game.getBoard().getPiece(command.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE &&
+                !username.equals(whiteUser)) {
+            throw new InvalidMoveException("That's not your piece");
         }
         game.makeMove(command.getMove());
+        if (game.isFinished) {
+            String message;
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                message = whiteUser + " (white) is in checkmate.";}
+            else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                message = blackUser + " (black) is in checkmate.";}
+            else if (game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                message = "Stalemate";}
+            else {
+                message = "For some reason the game was marked as finished but not in stale/checkmate";}
+            throw new RuntimeException("This game is finished: " + message);
+        }
         gameDao.removeGame(gameID);
         gameDao.addGame(new GameData(gameID, whiteUser, blackUser, gamename, game));
         return new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
@@ -69,15 +92,21 @@ public class WebSocketService {
          2. Server sends a Notification message to all clients in that game informing them that the root client resigned.
          This applies to both players and observers.
      */
-    public NotificationMessage resign(ResignCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
+    public NotificationMessage resign(ResignCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException, IllegalAccessException {
         String username = authenticate(command, authDao);
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
-        game.isFinished = true;
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
+        if (!username.equals(blackUser) && !username.equals(whiteUser)) {
+            throw new IllegalAccessException("An observer cannot resign.");
+        }
+        if (game.isFinished) {
+            throw new IllegalAccessException("This game is already finished.");
+        }
+        game.isFinished = true;
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
         gameDao.removeGame(gameID);
         gameDao.addGame(gameData);
@@ -92,23 +121,24 @@ public class WebSocketService {
      */
     public NotificationMessage leave(LeaveCommand command, DataAccessObjects.GameDAO gameDao, DataAccessObjects.AuthDAO authDao) throws DataAccessException {
         String username = authenticate(command, authDao);
-
         System.out.println(username);
-
         int gameID = command.getGameID();
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
         String gamename = gameData.gameName();
         String blackUser = gameData.blackUsername();
         String whiteUser = gameData.whiteUsername();
+        if (!Objects.equals(username, blackUser) && !Objects.equals(username, whiteUser)) {
+            return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "THISOBSERVER");
+        }
         if (blackUser != null && gameData.blackUsername().equals(username)) {blackUser = null;}
         else if (whiteUser != null && gameData.whiteUsername().equals(username)) {whiteUser = null;}
         gameData = new GameData(gameID, whiteUser, blackUser, gamename, game);
-
-        System.out.print(new Gson().toJson(gameData));
-
         gameDao.removeGame(gameID);
         gameDao.addGame(gameData);
+//        if (!Objects.equals(username, blackUser) && !Objects.equals(username, whiteUser)) {
+//            return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "THISOBSERVER");
+//        }
         return new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, username + " left " + gamename);
     }
 

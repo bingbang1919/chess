@@ -13,9 +13,9 @@ import static ui.EscapeSequences.*;
 public class GameplayREPL {
     private static final int CHESS_BOARD_SIZE = 8;
     private final WebSocketClient client;
-    private static ArrayList<ChessPosition> highlightedSpots = new ArrayList<>();
+    private static final ArrayList<ChessPosition> highlightedSpots = new ArrayList<>();
 
-    GameplayREPL(WebSocketClient client, ChessGame.TeamColor color) {
+    GameplayREPL(WebSocketClient client) {
         this.client = client;
     }
 
@@ -33,7 +33,7 @@ public class GameplayREPL {
         }
     }
 
-    public void drawBoard(ChessBoard board, boolean whiteView, ArrayList<ChessMove> moves) {
+    public static void drawBoard(ChessBoard board, boolean whiteView, ArrayList<ChessMove> moves) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         if (moves != null) {
             for (ChessMove move : moves) {
@@ -75,7 +75,7 @@ public class GameplayREPL {
         highlightedSpots.clear();
     }
 
-    private void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
+    private static void drawHeader(PrintStream out, String[] headers, boolean whiteView) {
         String[] columnMarkers = {"   ", " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", "   "};
         out.print(SET_BG_COLOR_DARK_GREY);
         if (whiteView) {
@@ -92,7 +92,7 @@ public class GameplayREPL {
 
     }
 
-    private void printPosition(PrintStream out, ChessBoard board, int row, int col) {
+    private static void printPosition(PrintStream out, ChessBoard board, int row, int col) {
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
         String character = null;
         if ((row % 2 == 0 && col % 2 == 1) || (row % 2 == 1 && col % 2 == 0)) {

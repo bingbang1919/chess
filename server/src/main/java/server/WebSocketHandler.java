@@ -34,7 +34,7 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
-        System.out.println("received message: " + message);
+//        System.out.println("received message: " + message);
         Gson gson = new Gson();
         switch (gson.fromJson(message, UserGameCommand.class).getCommandType()) {
             case CONNECT -> connect(session, gson.fromJson(message, ConnectCommand.class));
@@ -51,7 +51,7 @@ public class WebSocketHandler {
 
     @OnWebSocketClose
     public void onClose(Session session, int status, String reason) {
-        System.out.println("Status: " + status + ", Reason: " + reason);
+//        System.out.println("Status: " + status + ", Reason: " + reason);
     }
 
     private void connect(Session session, ConnectCommand command) throws Exception {
@@ -76,12 +76,14 @@ public class WebSocketHandler {
             LoadGameMessage message = service.makeMove(command, gameDao, authDao);
             NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Someone has moved.");
             notifyAll(command.getGameID(), notificationMessage, session);
-            session.getRemote().sendString(new Gson().toJson(message));
+            notifyAll(command.getGameID(), message, null);
         } catch (InvalidMoveException e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Invalid Move Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
-        }
-        catch (Exception e) {
+        } catch (RuntimeException e) {
+            NotificationMessage notificationMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, e.getMessage());
+            notifyAll(command.getGameID(), notificationMessage, null);
+        } catch (Exception e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
         }
@@ -90,8 +92,17 @@ public class WebSocketHandler {
         try {
             WebSocketService service = new WebSocketService();
             NotificationMessage message = service.leave(command, gameDao, authDao);
+//            if (!message.getMessage().equals("THISOBSERVER")) {
             notifyAll(command.getGameID(), message, session);
+            connections.get(command.getGameID()).remove(session);
+//            }
+//            else {
+//                message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "Leaving game...");
+//                session.getRemote().sendString(new Gson().toJson(message));
+//            }
+//            notifyAll(command.getGameID(), message, session);
         } catch (Exception e) {
+            System.out.print(e.getMessage());
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: " + e.getMessage());
             session.getRemote().sendString(new Gson().toJson(message));
         }

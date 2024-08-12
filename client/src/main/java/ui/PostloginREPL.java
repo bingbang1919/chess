@@ -22,7 +22,7 @@ public class PostloginREPL {
                 return;
             }
             if (inGame) {
-                new GameplayREPL(client.wbClient, color).run();
+                new GameplayREPL(client.wbClient).run();
             }
             System.out.print(SET_TEXT_BOLD + SET_BG_COLOR_WHITE + SET_TEXT_COLOR_BLACK + "[LOGGED IN]" + SET_BG_COLOR_BLACK +
                     SET_TEXT_COLOR_WHITE + " Enter a Response: ");

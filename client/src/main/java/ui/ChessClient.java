@@ -167,15 +167,21 @@ public class ChessClient {
         if (isInteger(params[0])){
             Integer gameID = Integer.valueOf(params[0]);
             TeamColor color = switch (params[1]) {
-                case "black" -> TeamColor.BLACK;
-                case "white" -> TeamColor.WHITE;
+                case "black" -> {
+                    wbClient.whiteView=false;
+                    yield TeamColor.BLACK;
+                }
+                case "white" -> {
+                    wbClient.whiteView=true;
+                    yield TeamColor.WHITE;
+                }
                 default -> throw new IllegalStateException("Second argument must be a chess team color: <BLACK|WHITE>");
             };
             wbClient.gameID = gameID;
             facade.joinGame(registeredGames.get(gameID), color);
             ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             wbClient.send(new Gson().toJson(command));
-            new GameplayREPL(wbClient, color).run();
+            new GameplayREPL(wbClient).run();
         } else {
             throw new IllegalArgumentException("Game ID must be an integer.");
         }
@@ -188,9 +194,12 @@ public class ChessClient {
         }
         if (isInteger(params[0])) {
             int gameID = Integer.parseInt(params[0]);
+            wbClient.whiteView = true;
+            wbClient.spectating = true;
+            wbClient.gameID = gameID;
             ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             wbClient.send(new Gson().toJson(command));
-            new GameplayREPL(wbClient, TeamColor.WHITE).run();
+            new GameplayREPL(wbClient).run();
             return "Observing game #" + gameID;
         }
         else {
