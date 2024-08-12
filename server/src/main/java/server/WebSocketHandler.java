@@ -8,10 +8,10 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.glassfish.grizzly.utils.Pair;
 import websocket.commands.*;
 import websocket.messages.*;
 import websocket.messages.ServerMessage;
+import server.Pair;
 
 import java.io.IOException;
 import java.util.HashMap;

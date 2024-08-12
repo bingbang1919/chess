@@ -5,7 +5,7 @@ import chess.InvalidMoveException;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessObjects;
 import model.GameData;
-import org.glassfish.grizzly.utils.Pair;
+import server.Pair;
 import websocket.commands.*;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
